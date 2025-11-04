@@ -35,15 +35,17 @@ int getLineNumber(list[Declaration] asts){
     list[loc] locs = calculateUnitSize(asts);
     loc location = locs[0];
     // int lines = countLinesSingleFile(location);
-    list[str] lines = skipMultilineComments(location);
-    return size(lines);
+    // list[str] lines = skipMultilineComments(location);
+    list[str] lines = readFileLines(location);
+    list[str] cleanedLines = skipMultilineComments(lines);
+    return size(cleanedLines);
 }
 
-list[str] skipMultilineComments(list[str] lines){
+list[str] skipMultilineComments(list[str] raw_lines){
     list[str] lines = [];
     bool openComment = false;
-    for (line <- readFileLines(location)) {
-        str line = trim(rawLine);
+    for (line <- raw_lines) {
+        str line = trim(line);
         // Check for (/*)
         if (!openComment && containsMultilineCommentOpen(line)){
             openComment = true;
