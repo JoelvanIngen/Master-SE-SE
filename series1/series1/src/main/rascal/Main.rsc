@@ -41,53 +41,79 @@ int getLineNumber(list[Declaration] asts){
     return size(cleanedLines);
 }
 
+/*
+ * Removes embedded multiline comments in singular line
+ */
+str removeLineEmbeddedMultilineComments(str line){
+    return multilineOpen(line);
+}
+
 str multilineOpen(str line){
-    // split the line into before & after (*/)
-    list[str] division = split("/*",line);
-    if (size(division) != 0){
-        if (trim(division[0]) != ""){
-            // add part to deal somehow with closing multiliner
-            return trim(division[0]);
+    // Check if contains (*/) at all
+    if (size(findAll(line, "/*")) > 0 ){
+        // Splits "aaa /* something */ bbb" into ["aaa ", " something */ bbb"]
+        list[str] division = split("/*",line);
+        println(division);
+        if (size(division) != 0){
+            if (trim(division[0]) != ""){
+                println(division);
+                // add part to deal somehow with closing multiliner
+                return trim(division[0]) + multilineClose(division[1]);
+            }
         }
+        return "";
     }
-    return "";
+    return line;
+
 }
 
 str multilineClose(str line){
-    // split the line into before & after (*/)
-    list[str] division = split("*/",line);
-    if (size(division) != 0){
-        if (trim(division[1]) != ""){
-            print("non-empty line post-(*/)");
-            // add part to deal somehow with another opening multiliner
-            return trim(division[1]);
+    if (size(findAll(line, "*/")) > 0 ){
+        // Splits "something */ bbb" into ["something  ", " bbb"]
+        list[str] division = split("*/",line);
+        if (size(division) != 0){
+            if (trim(division[1]) != ""){
+                // add part to deal somehow with another opening multiliner
+                return multilineOpen(trim(division[1]));
+            }
+        }
+        return "";
+    }
+    return line;
+}
+
+str checkLine(str raw_line, bool openComment){
+
+    str line = trim(raw_line);
+    // Check for (/*)
+    if (!openComment && containsMultilineCommentOpen(line)){
+        openComment = true;
+        str string = multilineOpen(line);
+        if (size(string) == 0){
+            return checkLine(string, openComment);
         }
     }
-    return "";
+    // Check for (*/)
+    if (openComment && containsMultilineCommentClosure(line)){
+        openComment = false;
+        str string = multilineClose(line);
+        if (size(string) == 0){
+            return checkLine(string, openComment);
+        }
+    }
+    return line;
 }
+
+// str replaceClosedComments(str initial) {
+//   return replaceFirst(initial, /\/\*.*?\*\//, "");
+// }
 
 list[str] skipMultilineComments(list[str] raw_lines){
     list[str] lines = [];
     bool openComment = false;
     for (raw_line <- raw_lines) {
         str line = trim(raw_line);
-        // Check for (/*)
-        if (!openComment && containsMultilineCommentOpen(line)){
-            openComment = true;
-            str string = multilineOpen(line);
-            if (size(string) == 0){
-                continue;
-            }
-        }
-        // Check for (*/)
-        if (openComment && containsMultilineCommentClosure(line)){
-            println("cond2");
-            openComment = false;
-            str string = multilineClose(line);
-            if (size(string) == 0){
-                continue;
-            }
-        }
+        line = checkLine(line, openComment);
         println(line);
         lines += line;
 
