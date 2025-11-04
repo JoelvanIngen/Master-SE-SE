@@ -34,11 +34,8 @@ list[loc] calculateUnitSize(list[Declaration] asts){
 int getLineNumber(list[Declaration] asts){
     list[loc] locs = calculateUnitSize(asts);
     loc location = locs[0];
-    // int lines = countLinesSingleFile(location);
-    // list[str] lines = skipMultilineComments(location);
-    list[str] lines = readFileLines(location);
-    list[str] cleanedLines = skipMultilineComments(lines);
-    return size(cleanedLines);
+    int howMany = countLinesSingleFile(location);
+    return howMany;
 }
 
 /*
@@ -49,19 +46,14 @@ str removeLineEmbeddedMultilineComments(str line){
 }
 
 str multilineOpen(str line){
-    // Check if contains (*/) at all
     if (size(findAll(line, "/*")) > 0 ){
         // Splits "aaa /* something */ bbb" into ["aaa ", " something */ bbb"]
-        list[str] division = split("/*",line);
-        println(division);
-        if (size(division) != 0){
-            if (trim(division[0]) != ""){
-                println(division);
-                // add part to deal somehow with closing multiliner
-                return trim(division[0]) + multilineClose(division[1]);
-            }
-        }
-        return "";
+        int index = findFirst(line, "/*");
+        str before = line[0..index];
+        str after = line[index+2..];
+
+        // Look for "*/"
+        return trim(before) + multilineClose(after);
     }
     return line;
 
@@ -69,54 +61,43 @@ str multilineOpen(str line){
 
 str multilineClose(str line){
     if (size(findAll(line, "*/")) > 0 ){
-        // Splits "something */ bbb" into ["something  ", " bbb"]
-        list[str] division = split("*/",line);
-        if (size(division) != 0){
-            if (trim(division[1]) != ""){
-                // add part to deal somehow with another opening multiliner
-                return multilineOpen(trim(division[1]));
-            }
-        }
-        return "";
+        int index = findFirst(line, "*/");
+        str after = line[index+2..];
+        return multilineOpen(trim(after));
     }
-    return line;
-}
-
-str checkLine(str raw_line, bool openComment){
-
-    str line = trim(raw_line);
-    // Check for (/*)
-    if (!openComment && containsMultilineCommentOpen(line)){
-        openComment = true;
-        str string = multilineOpen(line);
-        if (size(string) == 0){
-            return checkLine(string, openComment);
-        }
+    else{
+        // If there is no closing "*/" add "*/" we removed before in multilineOpen()
+        return "/*" + line;
     }
-    // Check for (*/)
-    if (openComment && containsMultilineCommentClosure(line)){
-        openComment = false;
-        str string = multilineClose(line);
-        if (size(string) == 0){
-            return checkLine(string, openComment);
-        }
-    }
-    return line;
 }
 
 // str replaceClosedComments(str initial) {
-//   return replaceFirst(initial, /\/\*.*?\*\//, "");
+//   return replaceFirst(initial, /\/\*.*?\*\//, ""); /* something */
 // }
 
 list[str] skipMultilineComments(list[str] raw_lines){
     list[str] lines = [];
     bool openComment = false;
     for (raw_line <- raw_lines) {
-        str line = trim(raw_line);
-        line = checkLine(line, openComment);
-        println(line);
-        lines += line;
-
+        str line0 = trim(raw_line);
+        str line = multilineOpen(line0);
+        // Check for (/*)
+        if (!openComment && containsMultilineCommentOpen(line)){
+            openComment = true;
+            if (!startsWith(line, "/*")){
+                lines += line;
+            }
+        }
+        // Check for (*/)
+        if (openComment && containsMultilineCommentClosure(line)){
+            openComment = false;
+            if (endsWith(line, "*/")){
+                continue;
+            }
+        }
+        if (!openComment){
+            lines += line;
+        }
     }
     return lines;
 }
@@ -127,6 +108,9 @@ int countLinesSingleFile(loc location) {
     int nLines = 0;
     list[str] lines = readFileLines(location);
     list[str] cleanedLines = skipMultilineComments(lines);
+    // for (l <- cleanedLines){
+    //     println(l);
+    // }
 
     for (line <- cleanedLines) {
         if (lineIsEmpty(line)) continue;
