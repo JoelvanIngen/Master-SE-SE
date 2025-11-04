@@ -41,39 +41,54 @@ int getLineNumber(list[Declaration] asts){
     return size(cleanedLines);
 }
 
+str multilineOpen(str line){
+    // split the line into before & after (*/)
+    list[str] division = split("/*",line);
+    if (size(division) != 0){
+        if (trim(division[0]) != ""){
+            // add part to deal somehow with closing multiliner
+            return trim(division[0]);
+        }
+    }
+    return "";
+}
+
+str multilineClose(str line){
+    // split the line into before & after (*/)
+    list[str] division = split("*/",line);
+    if (size(division) != 0){
+        if (trim(division[1]) != ""){
+            print("non-empty line post-(*/)");
+            // add part to deal somehow with another opening multiliner
+            return trim(division[1]);
+        }
+    }
+    return "";
+}
+
 list[str] skipMultilineComments(list[str] raw_lines){
     list[str] lines = [];
     bool openComment = false;
-    for (line <- raw_lines) {
-        str line = trim(line);
+    for (raw_line <- raw_lines) {
+        str line = trim(raw_line);
         // Check for (/*)
         if (!openComment && containsMultilineCommentOpen(line)){
             openComment = true;
-            if (!(startsWith("/*",line))){
-                list[str] division = split("/*",line);
-                if (trim(division[0]) != ""){
-                    line = trim(division[0]);
-                    print("non-empty line pre-(/*)");
-                    // lines += trim(division[0]);
-                }
-                else{
-                    continue;
-                }
+            str string = multilineOpen(line);
+            if (size(string) == 0){
+                continue;
             }
-
         }
         // Check for (*/)
         if (openComment && containsMultilineCommentClosure(line)){
             println("cond2");
             openComment = false;
-            list[str] division = split("*/",line);
-            println(division);
-            if (trim(division[1]) != ""){
-                print("non-empty line post-(*/)");
-                lines += trim(division[1]);
+            str string = multilineClose(line);
+            if (size(string) == 0){
+                continue;
             }
         }
-
+        println(line);
         lines += line;
 
     }
@@ -88,45 +103,8 @@ int countLinesSingleFile(loc location) {
     list[str] cleanedLines = skipMultilineComments(lines);
 
     for (line <- cleanedLines) {
-        // str line = trim(rawLine);
-        // Skip empty lines ("")
         if (lineIsEmpty(line)) continue;
-        // Skip lines if they start with a comment (//)
         if (startsWithSinglelineComment(line)) continue;
-
-        // // Skip lines starting with a multiline comment
-        // if (startsWithMultilineCommentOpen(line)) {
-        //     // Don't skip subsequent lines if comment also closes
-        //     if (containsMultilineCommentClosure(line)) continue;
-
-        //     // But do skip subsequent lines if it doesn't
-        //     multilineComment = true;
-        //     continue;
-        // }
-
-        // // Handle case of inline multiline comment opening
-        // if (containsMultilineCommentOpen(line)) {
-        //     // Do count towards total
-        //     nLines += 1;
-
-        //     // Don't skip subsequent lines if comment also closes
-        //     if (containsMultilineCommentClosure(line)) continue;
-
-        //     // But do skip subsequent lines if it doesn't
-        //     multilineComment = true;
-        //     continue;
-        // }
-
-        // // Handle case of ongoing multiline comment
-        // if (multilineComment) {
-        //     if (containsMultilineCommentClosure(line)) {
-        //         // Count subsequent lines again starting from next line
-        //         multilineComment = false;
-        //     }
-        //     continue;
-        // }
-
-        // Any non-comment, non-empty case
         nLines += 1;
     }
 
