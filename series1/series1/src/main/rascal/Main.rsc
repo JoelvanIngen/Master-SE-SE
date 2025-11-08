@@ -2,7 +2,6 @@ module Main
 
 import IO;
 import List;
-import Set;
 import String;
 import Map;
 
@@ -10,20 +9,11 @@ import lang::java::m3::Core;
 import lang::java::m3::AST;
 import util::Math;
 
+import LinesOfCode;
+
 ///////////////////////////////////////////
 ////////         CORE            //////////
 ///////////////////////////////////////////
-
-void main(int testArgument=0) {
-    println("\nUnit Size metrics:");
-    asts = getASTs(|project://smallsql0.21_src/|);
-    sizes = calculateUnitSizes(asts);
-    locRisk = linesOfCodePerUnitSizeRiskCategory(sizes);
-    percentageRisk = percentageCodePerUnitSizeRiskCategory(locRisk);
-    println("Risk category LOC (line of code) \t<locRisk>");
-    println("Risk category percentage \t <percentageRisk>");
-}
-
 
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
@@ -35,6 +25,19 @@ return asts;
 ///////////////////////////////////////////
 ////////         CODE            //////////
 ///////////////////////////////////////////
+
+
+void main() {
+    asts = getASTs(|project://smallsql0.21_src/|);
+
+    // Unit Size Metrics
+    println("\nUnit Size metrics:");
+    sizes = calculateUnitSizes(asts);
+    locRisk = linesOfCodePerUnitSizeRiskCategory(sizes);
+    percentageRisk = percentageCodePerUnitSizeRiskCategory(locRisk);
+    println("Risk category LOC (line of code) \t<locRisk>");
+    println("Risk category percentage \t\t <percentageRisk>");
+}
 
 
 /**
@@ -53,6 +56,9 @@ list[int] calculateUnitSizes(list[Declaration] asts){
     return sizes;
 }
 
+///////////////////////////////////////////
+////////      Risk Category      //////////
+///////////////////////////////////////////
 
 
 /**
@@ -91,131 +97,6 @@ map[int, real] percentageCodePerUnitSizeRiskCategory(map[int, int] locPerRiskCat
     total = sum([locPerRiskCategory[category] | category <- [0,1,2,3]]);
     return (category : (toReal(locPerRiskCategory[category])/total) | category <- [0,1,2,3]);
 }
-
-
-/**
- * Searches the strings to find start nomenclature of the multi line comment
- * Removes multiline comments embedded in a SINGLE codeline.
- * Leaves opened multiline comments, but not closed in the same line.
- */
-str startMultiLineComment(str line){
-    int index = findFirst(line, "/*");
-    if (index >= 0){
-        str head = line[0..index];
-        str tail = line[index+2..];
-        return trim(head) + endMultiLineComment(tail);
-    }
-    return line;
-
-}
-
-
-/**
- * Searches the strings to find closing of the multi line comment
- */
-str endMultiLineComment(str line){
-    int index = findFirst(line, "*/");
-    if (index >= 0 ){
-        str tail = line[index+2..];
-        return startMultiLineComment(trim(tail));
-    }
-    // If multi line comment was not closed in the same line, add "/*"
-    // which was removed in startMultiLineComment()
-    return "/*" + line;
-}
-
-
-/**
- * Filters a list of code lines and removes multi-line comments
- */
-list[str] skipMultilineComments(list[str] linesWithComments){
-    list[str] lines = [];
-    bool openComment = false;
-    for (lineWithComments <- linesWithComments) {
-
-        // Removes multiline comments embedded in a SINGLE code line
-        // example: "int a=4; /* text */" ---> "int a=4;"
-        str line = startMultiLineComment(trim(lineWithComments));
-
-        // Opening of the multi-line comment
-        if (!openComment && containsMultilineCommentOpen(line)){
-            openComment = true;
-            // If line starts with "/*", don't include it in the line count
-            // If line does not start with "/*", include it
-            if (!startsWith(line, "/*")){
-                lines += line;
-            }
-        }
-
-        // Closing of the multi-line comment
-        if (openComment && containsMultilineCommentClosure(line)){
-            openComment = false;
-            // If line ends with "*/", include it in the line count
-            // If line does not ends with "*/", don't include it
-            if (endsWith(line, "*/")){
-                continue;
-            }
-        }
-
-        // Include lines, which are not inside of open multi-line comment
-        if (!openComment){
-            lines += line;
-        }
-    }
-    return lines;
-}
-
-
-/**
- * Count the number of lines at a given location.
- * Excludes comments & empty lines
- */
-int countLines(loc location) {
-    int nLines = 0;
-    list[str] lines = readFileLines(location);
-    list[str] cleanedLines = skipMultilineComments(lines);
-
-    for (line <- cleanedLines) {
-        if (lineIsEmpty(line)) continue;
-        if (startsWithSinglelineComment(line)) continue;
-        nLines += 1;
-    }
-
-    return nLines;
-}
-
-
-/**
- * Determines whether a line is empty
- */
-bool lineIsEmpty(str line) {
-    return line == "";
-}
-
-
-/**
- * Determines whether a line starts with a single-line comment (//)
- */
-bool startsWithSinglelineComment(str line) {
-    return startsWith(line, "//");
-}
-
-
-/**
- * Determines whether an LOC contains a comment opening (/*)
- */
-bool containsMultilineCommentOpen(str line) {
-    return contains(line, "/*");
-}
-
-
-/**
- * Determines whether an LOC contains a comment closure (* /)
- */
-bool containsMultilineCommentClosure(str line) {
-    return contains(line, "*/");
-}
-
 
 ///////////////////////////////////////////
 ////////   USEFUL FOR DEBUGGING  //////////
