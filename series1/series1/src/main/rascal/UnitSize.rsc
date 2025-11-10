@@ -36,6 +36,10 @@ list[int] calculateUnitSizes(list[Declaration] asts){
     visit(asts){
         case \method(_, _, _, _, _, _, Statement impl):
             sizes += countLines(impl.src);
+        case \initializer(_, Statement impl):
+            sizes += countLines(impl.src);
+        case \constructor(_, _, _, _, Statement impl):
+            sizes += countLines(impl.src);
     }
     return sizes;
 }
