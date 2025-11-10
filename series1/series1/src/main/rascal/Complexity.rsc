@@ -2,6 +2,7 @@ module Complexity
 
 import IO;
 import Node;
+import LinesOfCode;
 import List;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
@@ -16,21 +17,16 @@ int calcComplexity(list[Declaration] asts) {
 
     // Retrieve CC and LOC for each unit
     visit(asts) {
-        case m:\method(_, _, _, _, _, _): complexities += calcMethodComplexity(m);
-        case m:\method(_, _, _, _, _, _, _): complexities += calcMethodComplexity(m);
+        case m:\constructor(_, _, _, _, Statement impl): complexities += calcMethodComplexity(m, impl);
+        case m:\initializer(_, Statement impl): complexities += calcMethodComplexity(m, impl);
+        case m:\method(_, _, _, _, _, _, Statement impl): complexities += calcMethodComplexity(m, impl);
     }
-
-    println(complexities);
 
     // Convert results into list of LOC per severity index
     list[int] severities = locPerSeverity(complexities);
 
-    println(severities);
-
     // Convert to fractions
     list[real] fracSeverities = convertToFractions(severities, sum(severities));
-
-    println(fracSeverities);
 
     // Grade results
     return gradeComplexity(fracSeverities);
@@ -42,7 +38,7 @@ int calcComplexity(list[Declaration] asts) {
  * using the `Counting decision points` method.
  * Returns a tuple of this complexity and the LOC of this unit.
  */
-tuple[int, int] calcMethodComplexity(node n) {
+tuple[int, int] calcMethodComplexity(node n, Statement impl) {
     // Counter starts at one as according to methodology
     int cc = 1;
 
@@ -66,7 +62,7 @@ tuple[int, int] calcMethodComplexity(node n) {
         case \while(_, _): cc += 1;
     }
 
-    return <cc, 1>;  // TODO: Replace second element with LOC counter when function exists
+    return <cc, countLines(impl.src)>;
 }
 
 /**

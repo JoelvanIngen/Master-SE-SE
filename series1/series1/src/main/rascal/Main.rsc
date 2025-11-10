@@ -30,5 +30,5 @@ void main() {
     // println(locations);
     // println(size(locations));
     // println(countLines(locations));
-    println(astsUnitSizeRisk(asts));
+    println(calcComplexity(asts));
 }
