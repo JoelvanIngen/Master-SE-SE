@@ -48,7 +48,7 @@ list[list[str]] findDuplicates(list[list[str]] sourceCode){
         }
     }
 
-    return final
+    return final;
 }
 
 
