@@ -1,4 +1,3 @@
-
 module UnitSize
 
 import IO;
@@ -11,8 +10,20 @@ import lang::java::m3::AST;
 import util::Math;
 
 import LinesOfCode;
+import Config;
+import Helpers;
 
-map[int, real] astsUnitSizeRisk(list[Declaration] asts){
+/**
+ * Finds all the 'units' in the source code (Java: methods) and calculates their
+ * size (LOC) (excluding comments and empty lines) & assigns to a Risk Category
+ *
+ * @param asts
+ * @param percentage: If true (default), the results will be percentage of
+ *                    the source code,
+ *                    if false results are in absolute lines of code (LOC)
+ * @return: a map[_riskCategory_: int _LOC_ or real _%OfSourceCode_]
+ */
+map[int, num] astsUnitSizeRisk(list[Declaration] asts, bool percentage = true){
     // Unit Size Metrics
     println("\nUnit Size metrics:");
     sizes = calculateUnitSizes(asts);
@@ -20,7 +31,7 @@ map[int, real] astsUnitSizeRisk(list[Declaration] asts){
     percentageRisk = percentageCodePerUnitSizeRiskCategory(locRisk);
     println("Risk category LOC (line of code) \t<locRisk>");
     println("Risk category percentage \t\t <percentageRisk>");
-    return percentageRisk;
+    return percentage ? percentageRisk : locRisk;
 }
 
 
@@ -36,6 +47,10 @@ list[int] calculateUnitSizes(list[Declaration] asts){
     visit(asts){
         case \method(_, _, _, _, _, _, Statement impl):
             sizes += countLines(impl.src);
+        case \initializer(_, Statement impl):
+            sizes += countLines(impl.src);
+        case \constructor(_, _, _, _, Statement impl):
+            sizes += countLines(impl.src);
     }
     return sizes;
 }
@@ -46,28 +61,13 @@ list[int] calculateUnitSizes(list[Declaration] asts){
 
 
 /**
- * Translates unit size to risk category.
- *
- * @param unitSize: LOC per method (Java)
- * @return: a risk category - low (0), medium (1), high (2), very high (3)
- * https://softwareimprovementgroup.com/wp-content/uploads/SIG-TUViT-Evaluation-Criteria-Trusted-Product-Maintainability-Guidance-for-producers.pdf?_gl=1*syaptg*_gcl_au*MTI0MTM4NDk4OS4xNzYyMDg5MDMw
- */
-int getRiskCategory(int unitSize) {
-    if (unitSize <= 15) return 0;
-    if (unitSize <= 30) return 1;
-    if (unitSize <= 60) return 2;
-    return 3;
-}
-
-
-/**
  * Calculates how many LOC (lines of code) belong to a given (unit size) risk category
  *
  * @param linesOfCodePerUnit: A list of sizes (LOC) of units of a source code
  * @return: a map of (int _riskCategory(0-3)_: int _LOC_)
  */
 map[int, int] linesOfCodePerUnitSizeRiskCategory(list[int] linesOfCodePerUnit) =
-    (category : sum([unitSize | unitSize <- linesOfCodePerUnit, getRiskCategory(unitSize) == category])
+    (category : sum([unitSize | unitSize <- linesOfCodePerUnit, getRiskCategory(unitSize, UNIT_SIZE_RISK_BOUNDRIES()) == category])
      | category <- [0,1,2,3]);
 
 

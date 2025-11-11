@@ -14,3 +14,5 @@ import lang::java::m3::AST;
 set[loc] genFileList(list[Declaration] asts) {
     return {decl.src | decl <- asts};
 }
+
+// use VOLUME_SCORE_VALUES from Config.rsc
