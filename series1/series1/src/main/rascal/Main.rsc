@@ -33,6 +33,7 @@ Content main() {
 
 Content pieChartRisk(map[int, num] riskMap){
     list[str] riskCategory = ["low risk", "medium risk", "high risk", "very high risk"];
-    input = [<"<riskCategory[risk]>", riskMap[risk]> | risk <- [0..4]];
+    // FIX IT [0..4] not [3..-1](TEMPORARY SOLUTION TO KEEP THE COLORS NICE)
+    input = [<"<riskCategory[risk]>", riskMap[risk]> | risk <- [3..-1]];
     return pieChart(input , title="Risk Chart");
 }

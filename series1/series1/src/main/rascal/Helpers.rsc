@@ -17,22 +17,20 @@ int getRiskCategory(int unitSize, tuple[int, int, int] boundries) {
     return 3;
 }
 
-/**
- * Splits a line of code into string parts, and everything else.
- * Any even-numbered index will be not-string-literal, and any
- * odd-numbered index will be a string literal.
- */
-list[str] splitStringLiterals(str line) {
-    return split("\"", line);
-}
+
+
+///////////////////////////////////////////
+////////        Checkers         //////////
+///////////////////////////////////////////
 
 /**
- * Takes a line or part of a line, and returns the part that is not within
- * a singleline comment. This might be the entire string.
+ * Removes singleline comments and cleans lines for a list of code lines.
+ * Returns a list of cleaned lines.
  */
-str removeSinglelineComment(str line) {
-    return split("//", line)[0];
+list[str] removeSinglelineComments(list[str] lines) {
+    return [removeSinglelineCommentFromLine(line) | line <- lines];
 }
+
 
 /**
  * Removes singleline comments (//) from a single line. Returns the clean
@@ -63,10 +61,21 @@ str removeSinglelineCommentFromLine(str line) {
     return cleanLine;
 }
 
+
 /**
- * Removes singleline comments and cleans lines for a list of code lines.
- * Returns a list of cleaned lines.
+ * Splits a line of code into string parts, and everything else.
+ * Any even-numbered index will be not-string-literal, and any
+ * odd-numbered index will be a string literal.
  */
-list[str] removeSinglelineComments(list[str] lines) {
-    return [removeSinglelineCommentFromLine(line) | line <- lines];
+list[str] splitStringLiterals(str line) {
+    return split("\"", line);
+}
+
+
+/**
+ * Takes a line or part of a line, and returns the part that is not within
+ * a singleline comment. This might be the entire string.
+ */
+str removeSinglelineComment(str line) {
+    return split("//", line)[0];
 }
