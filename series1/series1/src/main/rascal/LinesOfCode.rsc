@@ -4,22 +4,35 @@ import IO;
 import List;
 import String;
 
+import Helpers;
+
 /**
- * Count the number of lines at a given location.
+ * Count the number of clean lines at a given location.
  * Excludes comments & empty lines
  */
 int countLines(loc location) {
-    int nLines = 0;
-    list[str] lines = readFileLines(location);
-    list[str] cleanedLines = skipMultilineComments(lines);
+    list[str] cleanedLines = cleanLines(location);
+    return size(cleanedLines);
+}
 
-    for (line <- cleanedLines) {
+
+/**
+ * Cleans the code lines.
+ * Excludes comments & empty lines
+ */
+list[str] cleanLines(loc location) {
+    list[str] cleanedLines = [];
+    list[str] lines = readFileLines(location);
+    list[str] linesWithoutMLComments = skipMultilineComments(lines);
+
+    for (line <- linesWithoutMLComments) {
+        line = replaceAll(removeSinglelineCommentFromLine(line), " ", "");
         if (lineIsEmpty(line)) continue;
         if (startsWithSinglelineComment(line)) continue;
-        nLines += 1;
+        cleanedLines += line;
     }
 
-    return nLines;
+    return cleanedLines;
 }
 
 ///////////////////////////////////////////
