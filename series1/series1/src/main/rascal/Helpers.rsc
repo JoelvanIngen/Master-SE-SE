@@ -2,6 +2,21 @@ module Helpers
 
 import String;
 
+
+/**
+ * Translates metric to risk category.
+ *
+ * @param metric: unit size/complexity/volume
+ * @param boundries: edge val for risk categories (per metric) from Config.rsc
+ * @return: a risk category - low (0), medium (1), high (2), very high (3)
+ */
+int getRiskCategory(int unitSize, tuple[int, int, int] boundries) {
+    if (unitSize <= (boundries[0])) return 0;
+    if (unitSize <= (boundries[1])) return 1;
+    if (unitSize <= (boundries[2])) return 2;
+    return 3;
+}
+
 /**
  * Splits a line of code into string parts, and everything else.
  * Any even-numbered index will be not-string-literal, and any
@@ -55,42 +70,3 @@ str removeSinglelineCommentFromLine(str line) {
 list[str] removeSinglelineComments(list[str] lines) {
     return [removeSinglelineCommentFromLine(line) | line <- lines];
 }
-
-// list[str] skipMultilineComments(list[str] lines){
-//     list[str] lines = [];
-//     bool openComment = false;
-//     for (line <- readFileLines(location)) {
-//         str line = trim(rawLine);
-//         // Check for (/*)
-//         if (!openComment && containsMultilineCommentOpen(line)){
-//             openComment = true;
-//             if (!(startsWith("/*",line))){
-//                 list[str] division = split("/*",line);
-//                 if (trim(division[0]) != ""){
-//                     line = trim(division[0]);
-//                     print("non-empty line pre-(/*)");
-//                     // lines += trim(division[0]);
-//                 }
-//                 else{
-//                     continue;
-//                 }
-//             }
-
-//         }
-//         // Check for (*/)
-//         if (openComment && containsMultilineCommentClosure(line)){
-//             println("cond2");
-//             openComment = false;
-//             list[str] division = split("*/",line);
-//             println(division);
-//             if (trim(division[1]) != ""){
-//                 print("non-empty line post-(*/)");
-//                 lines += trim(division[1]);
-//             }
-//         }
-
-//         lines += line;
-
-//     }
-//     return lines;
-// }
