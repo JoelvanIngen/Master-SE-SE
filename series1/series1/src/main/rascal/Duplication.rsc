@@ -17,39 +17,42 @@ bool repeatedLine(str line1, str line2){
     return line1 == line2 ? true : false;
 }
 
-// Loop through the whole file
-// return: list of [repeated lines of code]
-list[list[str]] findDuplicates(list[list[str]] sourceCode){
-    list[list[str]] final = [];
-    totalRepeatedLines = [];
+// map(list[str], int) findDuplicateBlocksInfile(list[str] lines){
+//     int b = 0;
+//     int c = 1;
+//     while(b < size(lines)){
+//         int b_def = b;
 
-    for (file <- sourceCode){
-        for (line <- file){
-            int count = 0;
-            list [str] repearedLines = [];
+//         while(c < size(lines)){
 
-            // Iterate again
-            for (file2 <- sourceCode){
-                for (line2 <- file2){
+//         }
+//     }
+// }
 
-                    if (repeatedLine(line, line2)){
-                        count += 1;
-                    }
-                    else{
-                        if (count >= 6){
-                            final += repearedLines;
-                            totalRepeatedLines += size(repearedLines);
-                        }
-                        count = 0;
-                        repearedLines += [];
-                    }
-                }
-            }
-        }
+tuple[list[str], set[int]] iterateTillTheSame(list[str] lines, int b0, int c0){
+    set[int] indexDuplicated = {};
+    list[str] linesDuplicates = [];
+
+    int b = b0;
+    int c = c0;
+
+    while ((b < size(lines)) && c < size(lines) && (repeatedLine(lines[b], lines[c]))){
+        indexDuplicated += {c};
+        linesDuplicates += [lines[c]];
+        b += 1;
+        c += 1;
     }
 
-    return final
+    println(indexDuplicated);
+    println(linesDuplicates);
+    int blockLength = b - b0;
+    println(blockLength);
+
+    // Last index increment did not meet the condition line1==line2:
+    // b -= 1;
+    // c -= 1;
+
+    return <linesDuplicates, indexDuplicated>;
+
 }
 
-
-list[list[str]] findDuplicateBlocksInfile(list[str] lines){}
