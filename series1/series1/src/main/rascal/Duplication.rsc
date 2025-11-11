@@ -43,6 +43,7 @@ tuple[list[str], set[int]] iterateTillTheSame(list[str] lines, int b0, int c0){
         c += 1;
     }
 
+<<<<<<< HEAD
     println(indexDuplicated);
     println(linesDuplicates);
     int blockLength = b - b0;
@@ -54,5 +55,8 @@ tuple[list[str], set[int]] iterateTillTheSame(list[str] lines, int b0, int c0){
 
     return <linesDuplicates, indexDuplicated>;
 
+=======
+    return final;
+>>>>>>> main
 }
 

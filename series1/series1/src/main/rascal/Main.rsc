@@ -25,12 +25,7 @@ list[Declaration] getASTs(loc projectLocation) {
 
 Content main() {
     asts = getASTs(|project://smallsql0.21_src/|);
-    // TO BE FIXED (input type):
-    // set[loc] locations = genFileList(asts);
-    // println(locations);
-    // println(size(locations));
-    // println(countLines(locations));
-    // println(astsUnitSizeRisk(asts));
+    println(calcComplexity(asts));
     unitSizeRisk = astsUnitSizeRisk(asts, percentage = false);
     return pieChartRisk(unitSizeRisk);
 }
