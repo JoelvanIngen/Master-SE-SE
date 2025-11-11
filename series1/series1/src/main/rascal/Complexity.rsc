@@ -8,6 +8,9 @@ import lang::java::m3::AST;
 import lang::java::m3::Core;
 import util::Math;
 
+import Helpers;
+import Config;
+
 /**
  * Receives ASTs, and returns complexity score defined by the paper.
  * The output score is range 1 (--) to 5 (++).
@@ -66,23 +69,12 @@ tuple[int, int] calcMethodComplexity(node n, Statement impl) {
 }
 
 /**
- * Recieves CC, returns low (0), medium (1), high (2), very high (3)
- * per paper definition.
- */
-int getSeverityIndex(int cc) {
-    if (cc <= 10) return 0;
-    if (cc <= 20) return 1;
-    if (cc <= 50) return 2;
-    return 3;
-}
-
-/**
  * Determines the LOC per severity.
  * Output list has size 4 for each severity: low, medium, high, very high.
  */
 list[int] locPerSeverity (list[tuple[int, int]] cc) {
     list[int] severities = [0, 0, 0, 0];
-    for (unit <- cc) severities[getSeverityIndex(unit[0])] += unit[1];
+    for (unit <- cc) severities[getRiskCategory(unit[0], COMPLEXITY_RISK_BOUNDRIES())] += unit[1];
 
     return severities;
 }
@@ -97,6 +89,7 @@ list[real] convertToFractions(list[int] severities, int total_loc) {
     return [toReal(v) / total_loc | v <- severities];
 }
 
+// TODO:  COMPLEXITY_SCORE_VALUES from Config.rsc
 /**
  * Determines and returns the final code grade regarding detected complexities
  * Inputs: severities: loc percentage per severity level
