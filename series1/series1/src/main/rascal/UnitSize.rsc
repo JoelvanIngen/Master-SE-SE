@@ -1,4 +1,3 @@
-
 module UnitSize
 
 import IO;
@@ -12,7 +11,17 @@ import util::Math;
 
 import LinesOfCode;
 
-map[int, real] astsUnitSizeRisk(list[Declaration] asts){
+/**
+ * Finds all the 'units' in the source code (Java: methods) and calculates their
+ * size (LOC) (excluding comments and empty lines) & assigns to a Risk Category
+ *
+ * @param asts
+ * @param percentage: If true (default), the results will be percentage of
+ *                    the source code,
+ *                    if false results are in absolute lines of code (LOC)
+ * @return: a map[_riskCategory_: int _LOC_ or real _%OfSourceCode_]
+ */
+map[int, num] astsUnitSizeRisk(list[Declaration] asts, bool percentage = true){
     // Unit Size Metrics
     println("\nUnit Size metrics:");
     sizes = calculateUnitSizes(asts);
@@ -20,7 +29,8 @@ map[int, real] astsUnitSizeRisk(list[Declaration] asts){
     percentageRisk = percentageCodePerUnitSizeRiskCategory(locRisk);
     println("Risk category LOC (line of code) \t<locRisk>");
     println("Risk category percentage \t\t <percentageRisk>");
-    return percentageRisk;
+    // return percentageRisk;
+    return percentage ? percentageRisk : locRisk;
 }
 
 
