@@ -1,47 +1,67 @@
 module HashDuplication
 
+import Config;
 import IO;
 import LinesOfCode;
 import List;
 import Map;
 import Set;
 import Volume;
-import util::Math;
-import util::Progress;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
+import util::Math;
+import util::Progress;
 
 alias line_t = str;
 alias file_t = list[line_t];
 alias line_loc_t = tuple[str, int];  // file path and index
 
-int THRESHOLD = 6;
-
 /**
  * Determines and grades code duplication in the given codebase
+ * @param asts: a list of ASTs to analyse
+ * @param printDetails: optional boolean to print more debug information
+ * @return: the final grade for the codebase: 1-5 for --, -, 0, +, ++ respectively
  */
-int duplicationScore(list[Declaration] asts) {
+int duplicationScore(list[Declaration] asts, bool printDetails=false) {
     fileLocs = genFileList(asts);
 
     list[str] fileNames = [];
-    list[list[str]] filesContents = [];
+    list[file_t] filesContents = [];
 
-    int counter = 0;
+    int totalLOC = 0;
+
     for (loc fileLoc <- fileLocs) {
-        str fileName = fileLoc.path;
-        fileNames += [fileName];
-        list[str] fileContents = cleanLines(fileLoc);
+        file_t fileContents = cleanLines(fileLoc);
+
+        fileNames += [fileLoc.path];
         filesContents += [fileContents];
-        counter += size(fileContents);
+
+        totalLOC += size(fileContents);
     }
 
-    println("TOTAL LOC <counter>");
-    int num_dup = numberOfDuplicateLines(filesContents, fileNames);
-    println("DUPLICATES <num_dup>");
-    println("PERCENTAGE <toReal(num_dup) / toReal(counter) * 100>");
-    return num_dup;
+    int numDuplicates = numberOfDuplicateLines(filesContents, fileNames);
+    real fraction = toReal(numDuplicates) / toReal(totalLOC);
+
+    int grade = gradeDuplicateFraction(fraction);
+
+    if (printDetails) {
+        println("TOTAL LOC     : <totalLOC>");
+        println("DUPLICATE LOC : <numDuplicates>");
+        println("FRACTION DUP  : <fraction>");
+        println("GRADE 1-5     : <grade>");
+    }
+
+    return grade;  // TODO: Return final score instead
 }
 
+/**
+ * Handles a single file, adding new detected duplicated lines and
+ * comparing both against the current file and the previous files.
+ * @param file: a list of strings that represent all file lines
+ * @param filePath: the path to the file, used as identifier
+ * @param cmap: content map, containing lines and their locations from previous files
+ * @param duplicatesStorage: previously found matches
+ */
 tuple[map[line_t, set[line_loc_t]], set[line_loc_t]] duplicatesHandleSingleFile(file_t file, str filePath, map[line_t, set[line_loc_t]] cmap, set[line_loc_t] duplicatesStorage) {
     int index = 0;
 
@@ -69,10 +89,9 @@ tuple[map[line_t, set[line_loc_t]], set[line_loc_t]] duplicatesHandleSingleFile(
         // and retrieve their locations
         set[line_loc_t] earlierOccurrences = cmap[line];
 
-        // Handle case in which we already found at least one partial match
+        // Handle partial matches that were already being tracked
         if (size(tracker) > 0) {
-            // Find all streaks that we were tracking, and check if they still
-            // match for this iteration. If so, we increment them and keep tracking them
+            // For all streaks that still matche this iteration, we increment and keep tracking them
             map[line_loc_t, int] newTracker = ();
             for (candidate:<candPath, int candIndex> <- tracker) {
                 nextCand = <candPath, candIndex + 1>;
@@ -112,27 +131,30 @@ tuple[map[line_t, set[line_loc_t]], set[line_loc_t]] duplicatesHandleSingleFile(
     return <cmap, duplicatesStorage>;
 }
 
+/**
+ * Finds and counts the amount of duplicate lines in the entire codebase
+ * @param files: a list containing all file contents, which itself are lists of strings
+ * @param filePaths: a list of all the paths to the files, used to distinghuish between files
+ * @return: the amount of duplicates across the entire codebase
+ */
 int numberOfDuplicateLines(list[file_t] files, list[str] filePaths) {
-    // Create progressbar so the script isn't frozen for ages on big codebases
-    int fileNum = size(files);
-    <report, finished> = progressBar(fileNum, prefix="File: ");
+    // Create progressbar so the script doesn't seem frozen for ages on big codebases
+    int fileCount = size(files);
+    <pbarUpdate, pbarTerminate> = progressBar(fileCount, prefix="File: ");
 
     map[line_t, set[line_loc_t]] cmap = ();
-    int index = 0;
 
     // Stores all lines that have been marked as `duplicate`
     set[line_loc_t] duplicatesStorage = {};
 
-    for (<file, filePath> <- zip2(files, filePaths)) {
+    for (<index, file, filePath> <- zip3([1 .. size(files)+1], files, filePaths)) {
         <cmap, duplicatesStorage> = duplicatesHandleSingleFile(file, filePath, cmap, duplicatesStorage);
 
-        index += 1;
-        
         // Spaces are necessary so the line is fully overwritten if filepath is shorter than previous
-        report("File <index + 1> / <fileNum>: <filePath>                            ");
+        pbarUpdate("File <index>/<fileCount>: <filePath>                            ");
     }
 
-    finished();
+    pbarTerminate();
 
     return size(duplicatesStorage);
 }
@@ -140,11 +162,16 @@ int numberOfDuplicateLines(list[file_t] files, list[str] filePaths) {
 /**
  * Adds a found duplicate range to the results set, ensuring uniqueness.
  * Only adds ranges that exceed threshold.
+ * @param filePath: the path of the file that is currently being processed
+ * @param currIndex: the current index in the currently processed file
+ * @param acc: the existing, previously found results
+ * @param foundMatches: the terminated streaks that need to be added if they pass the threshold
+ * @return: the results map updated with the new, eligable results
  */
-set[line_loc_t] appendToResults(str filePath, int currIndex, set[line_loc_t] acc, map[line_loc_t, int] newRes) {
-    for (candidate <- newRes) {
-        int length = newRes[candidate];
-        if (length >= THRESHOLD) {
+set[line_loc_t] appendToResults(str filePath, int currIndex, set[line_loc_t] acc, map[line_loc_t, int] foundMatches) {
+    for (candidate <- foundMatches) {
+        int length = foundMatches[candidate];
+        if (length >= DUPLICATION_LENGTH_TRESHOLD()) {
             // Add all duplicate-marked lines
             for (i <- [currIndex - length .. currIndex]) {
                 acc += {<filePath, i>};
@@ -155,6 +182,13 @@ set[line_loc_t] appendToResults(str filePath, int currIndex, set[line_loc_t] acc
     return acc;
 }
 
+/**
+ * Finds and returns any streak that was valid previous iteration, but no
+ * longer matches on this iteration.
+ * @param oldTracker: the previous iteration's tracker map
+ * @param newTracker: this iteration's tracker map
+ * @return: all matches from previous iteration that are no longer found in current iteration
+ */
 map[line_loc_t, &V] findTerminated(map[line_loc_t, &V] oldTracker, map[line_loc_t, &V] newTracker) {
     map[line_loc_t, &V] terminatedStreaks = ();
     for (<filePath, index> <- oldTracker) {
@@ -163,4 +197,20 @@ map[line_loc_t, &V] findTerminated(map[line_loc_t, &V] oldTracker, map[line_loc_
         }
     }
     return terminatedStreaks;
+}
+
+/**
+ * Takes the fraction of duplicated code and returns a grade.
+ * ++, +, 0, -, -- are returned as 5, 4, 3, 2, 1 respectively.
+ * @param f: fraction of duplicated code
+ * @return: grade
+ */
+int gradeDuplicateFraction(real f) {
+    <pp, p, z, m> = DUPLICATION_FRACTIONS_BOUNDARIES();
+
+    if (f <= pp) return 5;
+    if (f <= p) return 4;
+    if (f <= z) return 3;
+    if (f <= m) return 2;
+    return 1;
 }

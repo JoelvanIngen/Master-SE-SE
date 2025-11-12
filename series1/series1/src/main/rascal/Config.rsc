@@ -21,3 +21,18 @@ tuple[tuple[int, int, int], tuple[int, int, int], tuple[int, int, int], tuple[in
     return <<25, 0, 0>, <30, 5, 0>, <40, 10, 0>, <50, 15, 5>>;
 }
 
+int DUPLICATION_LENGTH_TRESHOLD() {
+    return 6;
+}
+
+/**
+ * The maximum percentages, inclusive, for each grading category.
+ * <= 0.03:   ++
+ * <= 0.05:   +
+ * <= 0.10:   0
+ * <= 0.20:   -
+ * otherwise: --
+ */
+tuple[real, real, real, real] DUPLICATION_FRACTIONS_BOUNDARIES() {
+    return <0.03, 0.05, 0.10, 0.20>;
+}
