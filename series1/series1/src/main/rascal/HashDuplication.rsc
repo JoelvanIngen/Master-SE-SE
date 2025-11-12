@@ -7,6 +7,7 @@ import Map;
 import Set;
 import Volume;
 import util::Math;
+import util::Progress;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
@@ -112,6 +113,10 @@ tuple[map[line_t, set[line_loc_t]], set[line_loc_t]] duplicatesHandleSingleFile(
 }
 
 int numberOfDuplicateLines(list[file_t] files, list[str] filePaths) {
+    // Create progressbar so the script isn't frozen for ages on big codebases
+    int fileNum = size(files);
+    <report, finished> = progressBar(fileNum, prefix="File: ");
+
     map[line_t, set[line_loc_t]] cmap = ();
     int index = 0;
 
@@ -120,8 +125,14 @@ int numberOfDuplicateLines(list[file_t] files, list[str] filePaths) {
 
     for (<file, filePath> <- zip2(files, filePaths)) {
         <cmap, duplicatesStorage> = duplicatesHandleSingleFile(file, filePath, cmap, duplicatesStorage);
+
         index += 1;
+        
+        // Spaces are necessary so the line is fully overwritten if filepath is shorter than previous
+        report("File <index + 1> / <fileNum>: <filePath>                            ");
     }
+
+    finished();
 
     return size(duplicatesStorage);
 }
