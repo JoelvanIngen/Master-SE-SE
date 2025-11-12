@@ -1,10 +1,12 @@
 module HashDuplication
 
 import IO;
+import LinesOfCode;
 import List;
 import Map;
 import Set;
 import Volume;
+import util::Math;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
@@ -27,12 +29,16 @@ int duplicationScore(list[Declaration] asts) {
     for (loc fileLoc <- fileLocs) {
         str fileName = fileLoc.path;
         fileNames += [fileName];
-        list[str] fileContents = readFileLines(fileLoc);
+        list[str] fileContents = cleanLines(fileLoc);
         filesContents += [fileContents];
         counter += size(fileContents);
     }
 
-    return numberOfDuplicateLines(filesContents, fileNames);
+    println("TOTAL LOC <counter>");
+    int num_dup = numberOfDuplicateLines(filesContents, fileNames);
+    println("DUPLICATES <num_dup>");
+    println("PERCENTAGE <toReal(num_dup) / toReal(counter) * 100>");
+    return num_dup;
 }
 
 tuple[map[line_t, set[line_loc_t]], set[line_loc_t]] duplicatesHandleSingleFile(file_t file, str filePath, map[line_t, set[line_loc_t]] cmap, set[line_loc_t] duplicatesStorage) {
