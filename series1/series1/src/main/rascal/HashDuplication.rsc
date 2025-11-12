@@ -12,7 +12,7 @@ alias line_t = str;
 alias file_t = list[line_t];
 alias line_loc_t = tuple[str, int];  // file path and index
 
-int THRESHOLD = 2;
+int THRESHOLD = 6;
 
 /**
  * Determines and grades code duplication in the given codebase
