@@ -6,6 +6,7 @@ import LinesOfCode;
 import List;
 import Map;
 import Set;
+import String;
 import Volume;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
@@ -69,6 +70,8 @@ tuple[map[line_t, set[line_loc_t]], set[line_loc_t]] duplicatesHandleSingleFile(
     map[line_loc_t, int] tracker = ();
 
     for (line <- file) {
+        line = removeWhitespace(line);
+
         if (!(line in cmap)) {
             // Add line to contents map so it can be found in later iterations
             cmap[line] = {<filePath, index>};
@@ -211,4 +214,13 @@ int scoreDuplicateFraction(real f) {
     if (f <= z) return 3;
     if (f <= m) return 2;
     return 1;
+}
+
+/**
+ * Removes whitespace from a string
+ * @param s: string to remove whitespace from
+ * @return: string without whitespace
+ */
+str removeWhitespace(str s) {
+    return replaceAll(s, " ", "");
 }
