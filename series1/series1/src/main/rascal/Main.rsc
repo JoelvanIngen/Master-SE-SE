@@ -2,7 +2,7 @@ module Main
 
 import Complexity;
 import Content;
-import HashDuplication;
+import Duplication;
 import Helpers;
 import IO;
 import List;

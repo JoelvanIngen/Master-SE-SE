@@ -1,4 +1,4 @@
-module HashDuplication
+module Duplication
 
 import Config;
 import IO;
