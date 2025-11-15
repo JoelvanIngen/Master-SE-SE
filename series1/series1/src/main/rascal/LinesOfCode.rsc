@@ -18,7 +18,7 @@ int countLines(loc location) {
 
 /**
  * Cleans the code lines.
- * Excludes comments & empty lines
+ * Excludes comments & empty lines & empty spaces
  */
 list[str] cleanLines(loc location) {
     list[str] cleanedLines = [];
