@@ -175,7 +175,6 @@ set[line_loc_t] appendToResults(str filePath, int currIndex, set[line_loc_t] acc
     for (candidate <- foundMatches) {
         int length = foundMatches[candidate];
         if (length >= DUPLICATION_LENGTH_TRESHOLD()) {
-            println([currIndex - length .. currIndex]);
             // Add all duplicate-marked lines
             for (i <- [currIndex - length .. currIndex]) {
                 acc += {<filePath, i>};

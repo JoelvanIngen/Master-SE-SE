@@ -22,7 +22,7 @@ tuple[tuple[int, int, int], tuple[int, int, int], tuple[int, int, int], tuple[in
 }
 
 int DUPLICATION_LENGTH_TRESHOLD() {
-    return 4;
+    return 6;
 }
 
 /**
