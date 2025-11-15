@@ -30,6 +30,9 @@ int calcComplexity(list[Declaration] asts) {
 
     // Convert to fractions
     list[real] fracSeverities = convertToFractions(severities, sum(severities));
+    println("\nComplexity");
+    println(severities);
+    println(fracSeverities);
 
     // Grade results
     return gradeComplexity(fracSeverities);
@@ -51,18 +54,15 @@ tuple[int, int] calcMethodComplexity(node n, Statement impl) {
         case \for(_, _, _): cc += 1;
         case \if(_, _): cc += 1;
         case \if(_, _, _): cc += 1;
-
-        // For switch statements, we count each option as a complexity path
-        // despite fallthrough, since it is difficult to know if any path
-        // executes code before the fallthrough. Err on the side of caution
-        // Maybe we can change this line to \case, and add one for each?
+        case \conditional(_, _, _): cc += 1;
+        // Counting case instead of switch
         case \case(_): cc += 1;
-        // Do we need `caseRule` or whatever that is?
-        case defaultCase(): cc += 1;
 
         case \try(_, _): cc += 1;
         case \try(_, _, _): cc += 1;
+
         case \while(_, _): cc += 1;
+        case \do(_,_): cc += 1;
     }
 
     return <cc, countLines(impl.src)>;
@@ -81,7 +81,7 @@ list[int] locPerSeverity (list[tuple[int, int]] cc) {
 
 /**
  * Takes a list of total lines of code per severity
- *   Severities in this order: low, medium, high, very high
+ * Severities in this order: low, medium, high, very high
  * and the total amount of lines, and returns fractions of
  * LOC per severity
  */
