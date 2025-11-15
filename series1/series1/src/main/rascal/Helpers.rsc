@@ -17,3 +17,14 @@ int getRiskCategory(int unitSize, tuple[int, int, int] boundries) {
     return 3;
 }
 
+str scoreToStr(int score) {
+    switch (score) {
+        case 1: return "--";
+        case 2: return "-";
+        case 3: return "0";
+        case 4: return "+";
+        case 5: return "++";
+    }
+
+    throw "Unexpected score of <score> which is outside range of 1-5";
+}
