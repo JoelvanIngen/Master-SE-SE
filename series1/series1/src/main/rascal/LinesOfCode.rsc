@@ -4,8 +4,6 @@ import IO;
 import List;
 import String;
 
-import Helpers;
-
 
 /**
  * Cleans the code lines.
