@@ -52,7 +52,7 @@ int duplicationScore(list[Declaration] asts, bool printDetails=false) {
         println("GRADE 1-5     : <grade>");
     }
 
-    return grade;  // TODO: Return final score instead
+    return grade;
 }
 
 /**
