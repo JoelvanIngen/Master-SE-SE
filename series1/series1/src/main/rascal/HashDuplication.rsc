@@ -127,7 +127,7 @@ tuple[map[line_t, set[line_loc_t]], set[line_loc_t]] duplicatesHandleSingleFile(
 
     // Add ongoing matches
     duplicatesStorage = appendToResults(filePath, index, duplicatesStorage, tracker);
-    
+
     return <cmap, duplicatesStorage>;
 }
 
@@ -172,6 +172,7 @@ set[line_loc_t] appendToResults(str filePath, int currIndex, set[line_loc_t] acc
     for (candidate <- foundMatches) {
         int length = foundMatches[candidate];
         if (length >= DUPLICATION_LENGTH_TRESHOLD()) {
+            println([currIndex - length .. currIndex]);
             // Add all duplicate-marked lines
             for (i <- [currIndex - length .. currIndex]) {
                 acc += {<filePath, i>};
@@ -189,23 +190,20 @@ set[line_loc_t] appendToResults(str filePath, int currIndex, set[line_loc_t] acc
  * @param newTracker: this iteration's tracker map
  * @return: all matches from previous iteration that are no longer found in current iteration
  */
-map[line_loc_t, &V] findTerminated(map[line_loc_t, &V] oldTracker, map[line_loc_t, &V] newTracker) {
-    map[line_loc_t, &V] terminatedStreaks = ();
-    for (<filePath, index> <- oldTracker) {
-        if (!(<filePath, index + 1> in newTracker)) {
-            terminatedStreaks[<filePath, index>] = oldTracker[<filePath, index>];
-        }
-    }
-    return terminatedStreaks;
+map[line_loc_t, &V] findTerminated(map[line_loc_t, &V] oldTracker,
+                                   map[line_loc_t, &V] newTracker) {
+    return (location : oldTracker[location]
+            | location <- oldTracker,
+            !(<location[0], location[1] + 1> in newTracker));
 }
 
 /**
- * Takes the fraction of duplicated code and returns a grade.
+ * Takes the fraction of duplicated code and returns a score.
  * ++, +, 0, -, -- are returned as 5, 4, 3, 2, 1 respectively.
  * @param f: fraction of duplicated code
- * @return: grade
+ * @return: score
  */
-int gradeDuplicateFraction(real f) {
+int scoreDuplicateFraction(real f) {
     <pp, p, z, m> = DUPLICATION_FRACTIONS_BOUNDARIES();
 
     if (f <= pp) return 5;
