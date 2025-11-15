@@ -43,7 +43,7 @@ int duplicationScore(list[Declaration] asts, bool printDetails=false) {
     int numDuplicates = numberOfDuplicateLines(filesContents, fileNames);
     real fraction = toReal(numDuplicates) / toReal(totalLOC);
 
-    int grade = gradeDuplicateFraction(fraction);
+    int grade = scoreDuplicateFraction(fraction);
 
     if (printDetails) {
         println("TOTAL LOC     : <totalLOC>");
