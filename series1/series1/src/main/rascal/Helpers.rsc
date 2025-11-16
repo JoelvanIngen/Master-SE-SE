@@ -3,7 +3,12 @@ module Helpers
 import IO;
 import List;
 import String;
+import util::Math;
 
+
+int averageInt(list[int] xs) {
+    return round(toReal(sum(xs)) / size(xs));
+}
 
 /**
  * Translates metric to risk category.

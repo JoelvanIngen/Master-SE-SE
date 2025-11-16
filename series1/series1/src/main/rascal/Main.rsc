@@ -5,18 +5,12 @@ import IO;
 import List;
 import Location;
 import Map;
+import Report;
 import Set;
 import String;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 import vis::Charts;
-
-import Complexity;
-import Duplication;
-import Helpers;
-import UnitSize;
-import Volume;
-
 
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
@@ -28,27 +22,20 @@ list[Declaration] getASTs(loc projectLocation) {
 
 int main() {
     asts = getASTs(|project://smallsql0.21_src/|);
-    pprintScores(asts);
+
+    s = gatherScores(asts);
+    pprintMetrics(s[0], s[1], s[2], s[3]);
+
+    iso = calcISO9126(s[0], s[1], s[2], s[3]);
+    pprintISO(iso[0], iso[1], iso[2]);
+
+    maintainability = calcMaintainability(iso[0], iso[1], iso[2]);
+    pprintMaintainability(maintainability);
+
     return 0;
 }
 
-/**
- * Pretty prints the scores for each category
- */
-void pprintScores(list[Declaration] asts) {
-    // First calculate, then print such that progressbars/debug info
-    // don't split the output report
-    str volumeScore = scoreToStr(calcVolumeScore(asts, verbose=true));
-    str unitSizeScore = scoreToStr(calcUnitSizeScore(asts, verbose=true));
-    str complexityScore = scoreToStr(calcComplexityScore(asts, verbose=true));
-    str duplicationScore = scoreToStr(calcDuplicationScore(asts, verbose=true));
 
-    println("\nReport:");
-    println("Volume     : <volumeScore>");
-    println("Unit size  : <unitSizeScore>");
-    println("Complexity : <complexityScore>");
-    println("Duplication: <duplicationScore>");
-}
 
 Content pieChartRisk(map[int, num] riskMap){
     list[str] riskCategory = ["low risk", "medium risk", "high risk", "very high risk"];
