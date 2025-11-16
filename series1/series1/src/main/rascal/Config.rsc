@@ -10,7 +10,7 @@ tuple[int, int, int] UNIT_SIZE_RISK_BOUNDRIES(){
 }
 
 /**
- * From: "A Practical Model for Measuring Maintainability"
+ * From: "A PracticCOal Model for Measuring Maintainability"
  * doi: 10.1109/QUATIC.2007.8
  */
 tuple[int, int, int] COMPLEXITY_RISK_BOUNDRIES(){
@@ -34,11 +34,11 @@ tuple[int, int, int, int] VOLUME_SCORE_BOUNDRIES(){
  * risk category: <moderate, high, very high>
  * each outer tuple represents score: < ++, +, o, ->
  */
-tuple[tuple[int, int, int], tuple[int, int, int], tuple[int, int, int], tuple[int, int, int]] COMPLEXITY_SCORE_BOUNDRIES(){
-    return <<25, 0, 0>,
-            <30, 5, 0>,
-            <40, 10, 0>,
-            <50, 15, 5>>;
+tuple[tuple[num, num, num], tuple[num, num, num], tuple[num, num, num], tuple[num, num, num]] COMPLEXITY_SCORE_BOUNDRIES(){
+    return <<0.25, 0.0, 0.0>,
+            <0.30, 0.5, 0.0>,
+            <0.40, 0.10, 0.0>,
+            <0.50, 0.15, 0.5>>;
 }
 
 int DUPLICATION_LENGTH_TRESHOLD() {

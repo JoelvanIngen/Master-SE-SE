@@ -33,8 +33,8 @@ int calcComplexity(list[Declaration] asts) {
     println(severities);
     println(fracSeverities);
 
-    // Grade results
-    return gradeComplexity(fracSeverities);
+    // Score results
+    return scoreComplexity(fracSeverities);
 }
 
 /**
@@ -64,7 +64,7 @@ tuple[int, int] calcMethodComplexity(node n, Statement impl) {
         case \do(_,_): cc += 1;
     }
 
-    return <cc, countLines(impl.src)>;
+    return <cc, size(cleanLines(impl.src))>;
 }
 
 /**
@@ -90,12 +90,12 @@ list[real] convertToFractions(list[int] severities, int total_loc) {
 
 // TODO:  COMPLEXITY_SCORE_VALUES from Config.rsc
 /**
- * Determines and returns the final code grade regarding detected complexities
+ * Determines and returns the final code score regarding detected complexities
  * Inputs: severities: loc percentage per severity level
  *   Expects severity level order: low, medium, high, very high
  * Outputs: 5 (++), 4 (+), 3 (0), 2 (-), 1 (--)
  */
-int gradeComplexity(list[real] severities) {
+int scoreComplexity(list[real] severities) {
     real med = severities[1];
     real hi = severities[2];
     real vhi = severities[3];
