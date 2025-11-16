@@ -14,7 +14,9 @@ import Config;
  * Receives ASTs, and returns complexity score defined by the paper.
  * The output score is range 1 (--) to 5 (++).
  */
-int calcComplexityScore(list[Declaration] asts) {
+int calcComplexityScore(list[Declaration] asts, bool verbose = false) {
+    println("Computing Complexity metric");
+
     list[tuple[int, int]] complexities = [];
 
     // Retrieve CC and LOC for each unit
@@ -29,9 +31,11 @@ int calcComplexityScore(list[Declaration] asts) {
 
     // Convert to fractions
     list[real] fracSeverities = convertToFractions(severities, sum(severities));
-    println("\nComplexity");
-    println(severities);
-    println(fracSeverities);
+
+    if (verbose) {
+        println("Severities           : <severities>");
+        println("Fractional severities: <fracSeverities>");
+    }
 
     // Score results
     return scoreComplexity(fracSeverities);

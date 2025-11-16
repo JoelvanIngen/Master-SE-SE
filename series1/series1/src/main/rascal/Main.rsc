@@ -36,10 +36,18 @@ int main() {
  * Pretty prints the scores for each category
  */
 void pprintScores(list[Declaration] asts) {
-    println("Volume     : <scoreToStr(calcVolumeScore(asts))>");
-    println("Unit size  : <scoreToStr(calcUnitSizeScore(asts))>");
-    println("Complexity : <scoreToStr(calcComplexityScore(asts))>");
-    println("Duplication: <scoreToStr(calcDuplicationScore(asts))>");
+    // First calculate, then print such that progressbars/debug info
+    // don't split the output report
+    str volumeScore = scoreToStr(calcVolumeScore(asts, verbose=true));
+    str unitSizeScore = scoreToStr(calcUnitSizeScore(asts, verbose=true));
+    str complexityScore = scoreToStr(calcComplexityScore(asts, verbose=true));
+    str duplicationScore = scoreToStr(calcDuplicationScore(asts, verbose=true));
+
+    println("\nReport:");
+    println("Volume     : <volumeScore>");
+    println("Unit size  : <unitSizeScore>");
+    println("Complexity : <complexityScore>");
+    println("Duplication: <duplicationScore>");
 }
 
 Content pieChartRisk(map[int, num] riskMap){

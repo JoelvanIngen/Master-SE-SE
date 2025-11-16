@@ -46,10 +46,16 @@ int scoreVolume(int n) {
 /**
  * Determines the volume score for a list of ASTs
  * @param asts: list of Declaration (list of ASTs)
+ * @param verbose: optional boolean to print debug output
  * @return: 1 - 5 for -- to ++ respectively
  */
-int calcVolumeScore(list[Declaration] asts) {
+int calcVolumeScore(list[Declaration] asts, bool verbose = false) {
+    println("Computing Volume metric");
+
     fileLocs = genFileList(asts);
     int numLines = countLines(fileLocs);
+
+    if (verbose) println("Total LOC in codebase: <numLines>");
+
     return scoreVolume(numLines);
 }

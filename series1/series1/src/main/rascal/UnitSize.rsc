@@ -11,11 +11,15 @@ import util::Math;
 import Config;
 import Helpers;
 
-int calcUnitSizeScore(list[Declaration] asts){
+int calcUnitSizeScore(list[Declaration] asts, bool verbose = false){
+    println("Computing Unit Size metric");
+
     list[int] sizes = calculateUnitSizes(asts);
     list[num] percentageRisk = unitSizeRiskCategory(sizes, percentage = true);
     int score = scoreUnitSize(percentageRisk);
-    println("Risk categories: \t\t <percentageRisk>");
+
+    if (verbose) println("Risk categories: \t\t <percentageRisk>");
+    
     return score;
 }
 
