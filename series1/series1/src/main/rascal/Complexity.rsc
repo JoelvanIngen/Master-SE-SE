@@ -104,18 +104,11 @@ int scoreComplexity(list[real] severities) {
     real hi = severities[2];
     real vhi = severities[3];
 
-    // ++ case
-    if (med <= 0.25 && hi == 0.0 && vhi == 0.0) return 5;
+    cb = COMPLEXITY_SCORE_BOUNDRIES();
 
-    // + case
-    if (med <= 0.3 && hi <= 0.05 && vhi == 0.0) return 4;
-
-    // 0 case
-    if (med <= 0.4 && hi <= 0.1 && vhi == 0.0) return 3;
-
-    // - case
-    if (med <= 0.5 && hi <= 0.15 && vhi <= 0.05) return 2;
-
-    // -- case otherwise
+    // Match all scoring boundaries, or score 1 if none apply
+    for (i <- [0 .. 4]) {
+        if (med <= cb[i][0] && hi <= cb[i][1] && vhi <= cb[i][2]) return 5 - i;
+    }
     return 1;
 }
