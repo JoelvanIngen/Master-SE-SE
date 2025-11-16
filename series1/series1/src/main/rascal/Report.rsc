@@ -1,6 +1,7 @@
 module Report
 
 import Complexity;
+import Config;
 import Duplication;
 import Helpers;
 import IO;
@@ -51,10 +52,10 @@ void pprintMaintainability(int m) {
  */
 tuple[int, int, int, int] gatherScores(list[Declaration] asts) {
     return <
-        calcVolumeScore(asts, verbose=true),
-        calcUnitSizeScore(asts, verbose=true),
-        calcComplexityScore(asts, verbose=true),
-        calcDuplicationScore(asts, verbose=true)
+        calcVolumeScore(asts, verbose=VERBOSE()),
+        calcUnitSizeScore(asts, verbose=VERBOSE()),
+        calcComplexityScore(asts, verbose=VERBOSE()),
+        calcDuplicationScore(asts, verbose=VERBOSE())
     >;
 }
 

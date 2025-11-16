@@ -1,5 +1,9 @@
 module Config
 
+bool VERBOSE() {
+    return false;
+}
+
 /**
  * From: "SIG/TÜV NORD CERT EVALUATION CRITERIA TRUSTED PRODUCT MAINTAINABILITY: 
  * GUIDANCE FOR PRODUCERS" Version 17.0
