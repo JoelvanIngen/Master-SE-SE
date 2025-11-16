@@ -2,7 +2,6 @@ module Complexity
 
 import IO;
 import Node;
-import LinesOfCode;
 import List;
 import lang::java::m3::AST;
 import lang::java::m3::Core;

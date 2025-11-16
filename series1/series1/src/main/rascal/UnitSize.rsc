@@ -4,12 +4,10 @@ import IO;
 import List;
 import String;
 import Map;
-
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 import util::Math;
 
-import LinesOfCode;
 import Config;
 import Helpers;
 

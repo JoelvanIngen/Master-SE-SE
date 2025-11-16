@@ -1,20 +1,22 @@
 module Main
 
-import Complexity;
 import Content;
-import Duplication;
-import Helpers;
 import IO;
 import List;
 import Location;
 import Map;
 import Set;
 import String;
-import UnitSize;
-import Volume;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 import vis::Charts;
+
+import Complexity;
+import Duplication;
+import Helpers;
+import UnitSize;
+import Volume;
+
 
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
@@ -30,7 +32,7 @@ int main() {
     return 0;
 }
 
-/** 
+/**
  * Pretty prints the scores for each category
  */
 void pprintScores(list[Declaration] asts) {

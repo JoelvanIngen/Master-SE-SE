@@ -1,8 +1,6 @@
 module Duplication
 
-import Config;
 import IO;
-import LinesOfCode;
 import List;
 import Map;
 import Set;
@@ -12,6 +10,9 @@ import lang::java::m3::AST;
 import lang::java::m3::Core;
 import util::Math;
 import util::Progress;
+
+import Config;
+import Helpers;
 
 alias line_t = str;
 alias file_t = list[line_t];

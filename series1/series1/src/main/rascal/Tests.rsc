@@ -1,7 +1,6 @@
 module TESTS
 
 import IO;
-
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
