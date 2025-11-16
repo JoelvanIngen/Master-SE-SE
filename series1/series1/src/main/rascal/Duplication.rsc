@@ -1,8 +1,6 @@
-module HashDuplication
+module Duplication
 
-import Config;
 import IO;
-import LinesOfCode;
 import List;
 import Map;
 import Set;
@@ -13,6 +11,9 @@ import lang::java::m3::Core;
 import util::Math;
 import util::Progress;
 
+import Config;
+import Helpers;
+
 alias line_t = str;
 alias file_t = list[line_t];
 alias line_loc_t = tuple[str, int];  // file path and index
@@ -20,10 +21,12 @@ alias line_loc_t = tuple[str, int];  // file path and index
 /**
  * Determines and grades code duplication in the given codebase
  * @param asts: a list of ASTs to analyse
- * @param printDetails: optional boolean to print more debug information
+ * @param verbose: optional boolean to print more debug information
  * @return: the final grade for the codebase: 1-5 for --, -, 0, +, ++ respectively
  */
-int duplicationScore(list[Declaration] asts, bool printDetails=false) {
+int calcDuplicationScore(list[Declaration] asts, bool verbose=false) {
+    println("Computing Duplication metric");
+
     fileLocs = genFileList(asts);
 
     list[str] fileNames = [];
@@ -43,9 +46,9 @@ int duplicationScore(list[Declaration] asts, bool printDetails=false) {
     int numDuplicates = numberOfDuplicateLines(filesContents, fileNames);
     real fraction = toReal(numDuplicates) / toReal(totalLOC);
 
-    int grade = gradeDuplicateFraction(fraction);
+    int grade = scoreDuplicateFraction(fraction);
 
-    if (printDetails) {
+    if (verbose) {
         println("TOTAL LOC     : <totalLOC>");
         println("DUPLICATE LOC : <numDuplicates>");
         println("FRACTION DUP  : <fraction>");

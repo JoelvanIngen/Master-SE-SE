@@ -2,7 +2,6 @@ module Complexity
 
 import IO;
 import Node;
-import LinesOfCode;
 import List;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
@@ -15,7 +14,9 @@ import Config;
  * Receives ASTs, and returns complexity score defined by the paper.
  * The output score is range 1 (--) to 5 (++).
  */
-int calcComplexity(list[Declaration] asts) {
+int calcComplexityScore(list[Declaration] asts, bool verbose = false) {
+    println("Computing Complexity metric");
+
     list[tuple[int, int]] complexities = [];
 
     // Retrieve CC and LOC for each unit
@@ -30,12 +31,14 @@ int calcComplexity(list[Declaration] asts) {
 
     // Convert to fractions
     list[real] fracSeverities = convertToFractions(severities, sum(severities));
-    println("\nComplexity");
-    println(severities);
-    println(fracSeverities);
 
-    // Grade results
-    return gradeComplexity(fracSeverities);
+    if (verbose) {
+        println("Severities           : <severities>");
+        println("Fractional severities: <fracSeverities>");
+    }
+
+    // Score results
+    return scoreComplexity(fracSeverities);
 }
 
 /**
@@ -65,7 +68,7 @@ tuple[int, int] calcMethodComplexity(node n, Statement impl) {
         case \do(_,_): cc += 1;
     }
 
-    return <cc, countLines(impl.src)>;
+    return <cc, size(cleanLines(impl.src))>;
 }
 
 /**
@@ -91,12 +94,12 @@ list[real] convertToFractions(list[int] severities, int total_loc) {
 
 // TODO:  COMPLEXITY_SCORE_VALUES from Config.rsc
 /**
- * Determines and returns the final code grade regarding detected complexities
+ * Determines and returns the final code score regarding detected complexities
  * Inputs: severities: loc percentage per severity level
  *   Expects severity level order: low, medium, high, very high
  * Outputs: 5 (++), 4 (+), 3 (0), 2 (-), 1 (--)
  */
-int gradeComplexity(list[real] severities) {
+int scoreComplexity(list[real] severities) {
     real med = severities[1];
     real hi = severities[2];
     real vhi = severities[3];
