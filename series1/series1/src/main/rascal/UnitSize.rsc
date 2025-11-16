@@ -19,7 +19,7 @@ int calcUnitSizeScore(list[Declaration] asts, bool verbose = false){
     int score = scoreUnitSize(percentageRisk);
 
     if (verbose) println("Risk categories: \t\t <percentageRisk>");
-    
+
     return score;
 }
 
@@ -52,7 +52,7 @@ list[int] calculateUnitSizes(list[Declaration] asts){
  * @return: Unit Size Metric Score
  */
 int scoreUnitSize(list[real] risk){
-    threshold = COMPLEXITY_SCORE_BOUNDARIES();
+    threshold = UNIT_SIZE_SCORE_BOUNDARIES();
     real mid = risk[1];
     real high = risk[2];
     real vhigh = risk[3];

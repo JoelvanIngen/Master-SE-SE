@@ -34,15 +34,31 @@ tuple[int, int, int, int] VOLUME_SCORE_BOUNDARIES(){
  * doi: 10.1109/QUATIC.2007.8
  *
  * Where:
- * in each inner tuple numbers represent maximum relative LOC in a given
+ * in inner tuple numbers represent maximum relative LOC in a given
  * risk category: <moderate, high, very high>
- * each outer tuple represents score: < ++, +, o, ->
+ * and each tuple represents score: [ ++, +, o, - ]
  */
-tuple[tuple[num, num, num], tuple[num, num, num], tuple[num, num, num], tuple[num, num, num]] COMPLEXITY_SCORE_BOUNDARIES(){
-    return <<0.25, 0.0, 0.0>,
+list[tuple[num, num, num]] COMPLEXITY_SCORE_BOUNDARIES(){
+    return [<0.25, 0.0, 0.0>,
             <0.30, 0.5, 0.0>,
             <0.40, 0.10, 0.0>,
-            <0.50, 0.15, 0.05>>;
+            <0.50, 0.15, 0.05>];
+}
+
+/**
+ * From: "A Practical Model for Measuring Maintainability"
+ * doi: 10.1109/QUATIC.2007.8
+ *
+ * Where:
+ * in inner tuple numbers represent maximum relative LOC in a given
+ * risk category: <moderate, high, very high>
+ * and each tuple represents score: [ ++, +, o, - ]
+ */
+list[tuple[num, num, num]] UNIT_SIZE_SCORE_BOUNDARIES(){
+    return [<0.25, 0.0, 0.0>,
+            <0.30, 0.5, 0.0>,
+            <0.40, 0.10, 0.0>,
+            <0.50, 0.15, 0.05>];
 }
 
 int DUPLICATION_LENGTH_TRESHOLD() {
