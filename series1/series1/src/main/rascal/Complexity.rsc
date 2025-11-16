@@ -14,7 +14,7 @@ import Config;
  * Receives ASTs, and returns complexity score defined by the paper.
  * The output score is range 1 (--) to 5 (++).
  */
-int calcComplexity(list[Declaration] asts) {
+int calcComplexityScore(list[Declaration] asts) {
     list[tuple[int, int]] complexities = [];
 
     // Retrieve CC and LOC for each unit

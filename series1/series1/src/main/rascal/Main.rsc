@@ -38,8 +38,8 @@ int main() {
 void pprintScores(list[Declaration] asts) {
     println("Volume     : <scoreToStr(calcVolumeScore(asts))>");
     println("Unit size  : <scoreToStr(calcUnitSizeScore(asts))>");
-    println("Complexity : <scoreToStr(calcComplexity(asts))>");
-    println("Duplication: <scoreToStr(duplicationScore(asts))>");
+    println("Complexity : <scoreToStr(calcComplexityScore(asts))>");
+    println("Duplication: <scoreToStr(calcDuplicationScore(asts))>");
 }
 
 Content pieChartRisk(map[int, num] riskMap){
