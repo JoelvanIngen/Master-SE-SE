@@ -77,7 +77,7 @@ tuple[int, int] calcMethodComplexity(node n, Statement impl) {
  */
 list[int] locPerSeverity (list[tuple[int, int]] cc) {
     list[int] severities = [0, 0, 0, 0];
-    for (unit <- cc) severities[getRiskCategory(unit[0], COMPLEXITY_RISK_BOUNDRIES())] += unit[1];
+    for (unit <- cc) severities[getRiskCategory(unit[0], COMPLEXITY_RISK_BOUNDARIES())] += unit[1];
 
     return severities;
 }
@@ -104,7 +104,7 @@ int scoreComplexity(list[real] severities) {
     real hi = severities[2];
     real vhi = severities[3];
 
-    cb = COMPLEXITY_SCORE_BOUNDRIES();
+    cb = COMPLEXITY_SCORE_BOUNDARIES();
 
     // Match all scoring boundaries, or score 1 if none apply
     for (i <- [0 .. 4]) {

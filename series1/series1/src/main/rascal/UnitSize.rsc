@@ -52,7 +52,7 @@ list[int] calculateUnitSizes(list[Declaration] asts){
  * @return: Unit Size Metric Score
  */
 int scoreUnitSize(list[real] risk){
-    threshold = COMPLEXITY_SCORE_BOUNDRIES();
+    threshold = COMPLEXITY_SCORE_BOUNDARIES();
     real mid = risk[1];
     real high = risk[2];
     real vhigh = risk[3];
@@ -73,7 +73,7 @@ list[num] unitSizeRiskCategory(list[int] sizePerUnit, bool percentage = false){
     list[int] riskCategories = [0, 0, 0, 0];
 
     for (size <- sizePerUnit){
-        riskCategories[getRiskCategory(size, UNIT_SIZE_RISK_BOUNDRIES())] += size;
+        riskCategories[getRiskCategory(size, UNIT_SIZE_RISK_BOUNDARIES())] += size;
     }
 
     // Convert to % results if required

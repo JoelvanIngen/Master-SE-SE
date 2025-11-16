@@ -5,7 +5,7 @@ module Config
  * GUIDANCE FOR PRODUCERS" Version 17.0
  * https://softwareimprovementgroup.com/wp-content/uploads/SIG-TUViT-Evaluation-Criteria-Trusted-Product-Maintainability-Guidance-for-producers.pdf?_gl=1*syaptg*_gcl_au*MTI0MTM4NDk4OS4xNzYyMDg5MDMw
  */
-tuple[int, int, int] UNIT_SIZE_RISK_BOUNDRIES(){
+tuple[int, int, int] UNIT_SIZE_RISK_BOUNDARIES(){
     return <15, 30, 60>;
 }
 
@@ -13,7 +13,7 @@ tuple[int, int, int] UNIT_SIZE_RISK_BOUNDRIES(){
  * From: "A PracticCOal Model for Measuring Maintainability"
  * doi: 10.1109/QUATIC.2007.8
  */
-tuple[int, int, int] COMPLEXITY_RISK_BOUNDRIES(){
+tuple[int, int, int] COMPLEXITY_RISK_BOUNDARIES(){
     return <10, 20, 50>;
 }
 
@@ -21,7 +21,7 @@ tuple[int, int, int] COMPLEXITY_RISK_BOUNDRIES(){
  * From: "A Practical Model for Measuring Maintainability"
  * doi: 10.1109/QUATIC.2007.8
  */
-tuple[int, int, int, int] VOLUME_SCORE_BOUNDRIES(){
+tuple[int, int, int, int] VOLUME_SCORE_BOUNDARIES(){
     return <66000, 246000, 665000, 1310000>;
 }
 
@@ -34,7 +34,7 @@ tuple[int, int, int, int] VOLUME_SCORE_BOUNDRIES(){
  * risk category: <moderate, high, very high>
  * each outer tuple represents score: < ++, +, o, ->
  */
-tuple[tuple[num, num, num], tuple[num, num, num], tuple[num, num, num], tuple[num, num, num]] COMPLEXITY_SCORE_BOUNDRIES(){
+tuple[tuple[num, num, num], tuple[num, num, num], tuple[num, num, num], tuple[num, num, num]] COMPLEXITY_SCORE_BOUNDARIES(){
     return <<0.25, 0.0, 0.0>,
             <0.30, 0.5, 0.0>,
             <0.40, 0.10, 0.0>,

@@ -35,7 +35,7 @@ int countLines(set[loc] locs) {
  * @return 1 - 5 for -- to ++ respectively
  */
 int scoreVolume(int n) {
-    <pp, p, z, m> = VOLUME_SCORE_BOUNDRIES();
+    <pp, p, z, m> = VOLUME_SCORE_BOUNDARIES();
     if (n <= pp) return 5;
     if (n <= p) return 4;
     if (n <= z) return 3;
