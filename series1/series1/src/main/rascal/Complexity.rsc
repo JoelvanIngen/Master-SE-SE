@@ -65,7 +65,11 @@ tuple[int, int] calcMethodComplexity(node n, Statement impl) {
         case \try(_, _, _): cc += 1;
 
         case \while(_, _): cc += 1;
-        case \do(_,_): cc += 1;
+        case \do(_, _): cc += 1;
+
+        case \and(_, _): cc += 1;
+        case \or(_, _): cc += 1;
+        case \xor(_, _): cc += 1;
     }
 
     return <cc, size(cleanLines(impl.src))>;

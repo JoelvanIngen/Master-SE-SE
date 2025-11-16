@@ -1,7 +1,7 @@
 module Config
 
 bool VERBOSE() {
-    return false;
+    return true;
 }
 
 /**
