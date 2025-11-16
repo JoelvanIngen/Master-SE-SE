@@ -97,7 +97,7 @@ tuple[map[line_t, set[line_loc_t]], set[line_loc_t]] duplicatesHandleSingleFile(
 
         // Handle partial matches that were already being tracked
         if (size(tracker) > 0) {
-            // For all streaks that still matche this iteration, we increment and keep tracking them
+            // For all streaks that still match this iteration, we increment and keep tracking them
             map[line_loc_t, int] newTracker = ();
             for (candidate:<candPath, int candIndex> <- tracker) {
                 nextCand = <candPath, candIndex + 1>;
