@@ -20,7 +20,7 @@ list[Declaration] getASTs(loc projectLocation) {
 }
 
 
-int main() {
+void main() {
     asts = getASTs(|project://smallsql0.21_src/|);
 
     s = gatherScores(asts);
@@ -31,8 +31,6 @@ int main() {
 
     maintainability = calcMaintainability(iso[0], iso[1], iso[2]);
     pprintMaintainability(maintainability);
-
-    return 0;
 }
 
 
