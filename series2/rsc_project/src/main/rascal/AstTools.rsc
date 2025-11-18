@@ -2,6 +2,7 @@ module AstTools
 
 import IO;
 import Node;
+import Type;
 
 // Relates unique node (with src) to its size including (nested) children
 alias SizeMap = map[node, int];
@@ -22,28 +23,47 @@ list[node] getSubtrees(node ast) {
     return subtrees;
 }
 
-/**
- * Calculates the size of the node, all it's children, and further nested children.
- * Nodes must contain src information, else node hashes will collide
- * Seems bugged atm?
- */
-tuple[SizeMap, int] nestedSize(SizeMap m, node n) {
-    // Node without src info = size 0?
-    if (!n.src?) return <m, 0>;
-
-    // If size already in map from previous search, return that
-    if (n in m) return <m, m[n]>;
-
-    // Size is 1 (self) + size of children
+int constructSizeMapFindSizeFromChildren(SizeMap m, node n) {
     int s = 1;
-    for (node child <- getChildren(n)) {
-        <m, childSize> = nestedSize(m, child);
-        s += childSize;
-        println(childSize);
+
+    for (childElement <- getChildren(n)) {
+        switch (childElement) {
+            case node child: {
+                s += m[child];
+            }
+            case list[node] childList: {
+                for (node child <- childList) {
+                    int childSize = m[child];
+                    s += childSize;
+                }
+            }
+            /* Ignore default cases, they are either str (such as identifier
+             * name) or loc, neither of which are nodes that should be counted
+             * for node mass purposes */
+        }
     }
 
-    // Add size to map for cheap retrieval later
-    m[n] = s;
+    return s;
+}
 
-    return <m, s>;
+/**
+ * Constructs a cache with all sizes of all relevant nodes in an AST
+
+ * NEEDS TESTING
+ */
+SizeMap constructSizeMap(node n) {
+    SizeMap m = ();
+
+    // This works because visits are breadth-first bottom-up by default
+    visit (n) {
+        case node subtree: {
+            if (arity(subtree) == 0) {
+                m[subtree] = 1;
+            } else {
+                m[subtree] = constructSizeMapFindSizeFromChildren(m, subtree);
+            }
+        }
+    }
+
+    return m;
 }
