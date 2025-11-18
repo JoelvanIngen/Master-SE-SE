@@ -1,6 +1,7 @@
 module Main
 
 import IO;
+import Type1;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
@@ -11,7 +12,7 @@ list[Declaration] getASTs(loc projectLocation) {
     return asts;
 }
 
-
 void main() {
-    println(":)");
+    asts = getASTs(|project://smallsql0.21_src/|);
+    println(findClones(asts));
 }
