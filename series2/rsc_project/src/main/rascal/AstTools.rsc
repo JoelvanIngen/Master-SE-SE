@@ -23,7 +23,7 @@ list[node] getSubtrees(node ast) {
     return subtrees;
 }
 
-int constructSizeMapFindSizeFromChildren(SizeMap m, node n) {
+int constructSizeFromChildren(SizeMap m, node n) {
     int s = 1;
 
     for (childElement <- getChildren(n)) {
@@ -46,6 +46,12 @@ int constructSizeMapFindSizeFromChildren(SizeMap m, node n) {
     return s;
 }
 
+int constructSize(SizeMap m, node n) {
+    return arity(n) == 0
+        ? 1
+        : constructSizeFromChildren(m, n);
+}
+
 /**
  * Constructs a cache with all sizes of all relevant nodes in an AST
 
@@ -56,13 +62,7 @@ SizeMap constructSizeMap(node n) {
 
     // This works because visits are breadth-first bottom-up by default
     visit (n) {
-        case node subtree: {
-            if (arity(subtree) == 0) {
-                m[subtree] = 1;
-            } else {
-                m[subtree] = constructSizeMapFindSizeFromChildren(m, subtree);
-            }
-        }
+        case node subtree: m[subtree] = constructSize(m, subtree);
     }
 
     return m;
