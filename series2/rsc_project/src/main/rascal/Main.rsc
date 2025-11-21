@@ -1,7 +1,8 @@
 module Main
 
+import CloneDetection::Type1;
+import Helpers;
 import IO;
-import Type1;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
@@ -12,7 +13,20 @@ list[Declaration] getASTs(loc projectLocation) {
     return asts;
 }
 
+void printCloneAmount(list[Declaration] asts) {
+    fileLocs = genFileList(asts);
+    cleanedLines = [cleanLines(l) | l <- fileLocs];
+    filePaths = [l.path | l <- fileLocs];
+    findClones(cleanedLines, filePaths);
+}
+
+void testCloneAmount() {
+    cleanedLines = [["1", "2", "3", "4", "5", "6", "1", "2", "3", "4", "5", "6"]];
+    filePaths = ["file1"];
+    findClones(cleanedLines, filePaths);
+}
+
 void main() {
     asts = getASTs(|project://smallsql0.21_src/|);
-    println(findClones(asts));
+    println(asts);
 }

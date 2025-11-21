@@ -1,4 +1,4 @@
-module Type1
+module CloneDetection::AstBased
 
 import IO;
 import List;
