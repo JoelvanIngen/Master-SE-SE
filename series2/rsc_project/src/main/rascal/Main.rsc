@@ -5,6 +5,7 @@ import Helpers;
 import IO;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
+import Text::LineCleaning;
 
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
