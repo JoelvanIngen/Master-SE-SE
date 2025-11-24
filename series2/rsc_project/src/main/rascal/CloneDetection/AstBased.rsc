@@ -23,20 +23,21 @@ CloneMap findClones(list[node] asts) {
         case node n: {
             // Filtering based on subtree mass (Ira Baxter paper)
             // 200 is a TOTALLY ARBITRARY NUMBER
-            if (sizeMap[n] >= 200){
+            if (sizeMap[n] >= 100){
                 groups = hashAddNode(groups, n);
             }
         }
     }
 
     groups = filterRealCloneGroups(groups);
+    println("Duplicate blocks found: <size(groups)>");
     groups = filterStartingLinesMoreThanSix(groups);
+    // I think this is not doing what we think it is right?
     set[Location] lines = findAffectedLines(groups);
-    println(toList(groups)[0]);
-
     println("Amount of duplicate lines: <size(lines)>");
 
-    println(toList(lines)[0..10]);
+    // println(toList(lines)[0..10]);
+    // println(toList(groups)[0]);
 
     // return groups;
     return ();
