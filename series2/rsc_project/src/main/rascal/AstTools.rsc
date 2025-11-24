@@ -1,5 +1,6 @@
 module AstTools
 
+import Aliases;
 import IO;
 import Node;
 import Type;
@@ -57,13 +58,44 @@ int constructSize(SizeMap m, node n) {
 
  * NEEDS TESTING
  */
-SizeMap constructSizeMap(node n) {
+SizeMap constructSizeMap(list[node] nodes) {
     SizeMap m = ();
 
     // This works because visits are breadth-first bottom-up by default
-    visit (n) {
+    visit (nodes) {
         case node subtree: m[subtree] = constructSize(m, subtree);
     }
 
     return m;
+}
+
+
+
+/**
+ * Extracts the starting line number as integer from a node
+ * Node must have been checked for existence of src attribute
+ * If it doesn't have an src attribute, function will error
+ */
+Location extractStartingLine(node n) {
+    switch (n.src) {
+        case loc src: return <src.path, src.begin.line>;
+    }
+
+    fail;
+}
+
+set[Location] getStartingLines(node n) = getStartingLines([n]);
+
+set[Location] getStartingLines(list[node] nodes) {
+    set[Location] s = {};
+
+    visit(nodes) {
+        case node child: {
+            if (child.src?) {
+                s += {extractStartingLine(child)};
+            }
+        }
+    }
+
+    return s;
 }
