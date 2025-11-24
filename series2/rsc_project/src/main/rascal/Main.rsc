@@ -7,6 +7,7 @@ import lang::java::m3::AST;
 import lang::java::m3::Core;
 import Text::LineCleaning;
 
+
 list[Declaration] getASTs(loc projectLocation) {
     M3 model = createM3FromMavenProject(projectLocation);
     list[Declaration] asts = [createAstFromFile(f, true)
@@ -29,5 +30,6 @@ void testCloneAmount() {
 
 void main() {
     asts = getASTs(|project://smallsql0.21_src/|);
-    println(asts);
+    testCloneAmount();
+    // println(asts);
 }

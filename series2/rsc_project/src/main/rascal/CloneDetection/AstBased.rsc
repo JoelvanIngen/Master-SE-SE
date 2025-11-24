@@ -17,10 +17,15 @@ alias CloneMap = map[node, list[node]];
 // Collects all fragments and groups them
 CloneMap findClones(list[node] asts) {
     CloneMap groups = ();
+    map[node, int] sizeMap = constructSizeMap(asts);
 
     visit (asts) {
         case node n: {
-            groups = hashAddNode(groups, n);
+            // Filtering based on subtree mass (Ira Baxter paper)
+            // 200 is a TOTALLY ARBITRARY NUMBER
+            if (sizeMap[n] >= 200){
+                groups = hashAddNode(groups, n);
+            }
         }
     }
 
