@@ -14,6 +14,19 @@ import lang::java::m3::Core;
 // alias CloneMap = map[node, list[loc]];
 alias CloneMap = map[node, list[node]];
 
+// Removes all subclone buckets by checking all children
+CloneMap removeSubClones(CloneMap m, node newCleanNode){
+    list[node] kids = getChildren(newCleanNode);
+    visit (kids) {
+        case node n: {
+            if (n in m){
+                m = delete(m, n);
+            }
+        }
+    }
+    return m;
+}
+
 // Collects all fragments and groups them
 CloneMap findClones(list[node] asts) {
     CloneMap groups = ();
