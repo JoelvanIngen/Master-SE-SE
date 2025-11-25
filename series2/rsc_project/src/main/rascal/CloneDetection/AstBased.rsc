@@ -46,10 +46,8 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
 
     visit (asts) {
         case node n: {
-            if (!n.src?) fail;
-
             // Filtering based on subtree mass (Ira Baxter paper)
-            if (sizeMap[n] >= MASSTHRESHOLD){
+            if ((n has src) && (sizeMap[n] >= MASSTHRESHOLD)){
                 groups = hashAddNode(groups, n);
             }
         }
