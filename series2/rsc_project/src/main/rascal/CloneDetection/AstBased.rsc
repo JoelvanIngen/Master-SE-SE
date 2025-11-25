@@ -11,7 +11,7 @@ import lang::java::m3::AST;
 import lang::java::m3::Core;
 
 // Arbitrary number
-int MASSTHRESHOLD = 5000;
+int MASSTHRESHOLD = 50;
 
 int MIN_WINDOW_SIZE = 2;
 
@@ -20,21 +20,29 @@ int MIN_WINDOW_SIZE = 2;
 alias CloneMap = map[node, list[node]];
 
 // Removes all subclone buckets by checking all children
-CloneMap removeSubClones(CloneMap m, node newCleanNode){
+CloneMap removeSubClones(CloneMap m, node newCleanNode, int currWindowSize){
     visit (getChildren(newCleanNode)) {
         case node n: {
             if (n in m){
                 m = delete(m, n);
             }
         }
+        case list[node] nodes: {
+            if (currWindowSize > 2 && size(nodes) > currWindowSize - 1) {
+                windowsToRemove = generateSlidingWindows(nodes, currWindowSize - 1);
+                for (n <- windowsToRemove) {
+                    if (n in m) {
+                        m = delete(m, n);
+                    }
+                }
+            }
+        }
     }
     return m;
 }
 
-// Collects all fragments and groups them
-CloneMap findClones(list[node] asts) {
-    CloneMap groups = ();
-    map[node, int] sizeMap = constructSizeMap(asts);
+tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node] asts) {
+    int biggestList = 0;
 
     visit (asts) {
         case node n: {
@@ -45,27 +53,67 @@ CloneMap findClones(list[node] asts) {
                 groups = hashAddNode(groups, n);
             }
         }
-        case list[node] nodes: {
-            if (size(nodes) == 0) fail;
+        case list[node] ns: {
+            int s = size(ns);
+            if (s > biggestList) biggestList = s;
+        }
+    }
 
-            for (node window <- generateSlidingWindows(nodes)) {
-                if (slidingWindowSize(sizeMap, window) >= MASSTHRESHOLD) {
-                    groups = hashAddNode(groups, window);
+    return <groups, biggestList>;
+}
+
+CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength) {
+    visit (asts) {
+        case list[node] nodes: {
+            if (size(nodes) >= sequenceLength) {
+                for (node window <- generateSlidingWindows(nodes, sequenceLength)) {
+                    if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
+                        groups = hashAddNode(groups, window);
+                    }
                 }
             }
         }
     }
 
+    return groups;
+}
+
+CloneMap cleanGroups(CloneMap groups, int currWindowSize) {
+    println("\nENTERING CLEANING: WINDOW SIZE <currWindowSize> | CLONE GROUPS: <size(groups)>");
     groups = filterRealCloneGroups(groups);
+    println("AFTER \"REAL CLONES\" FILTER | CLONE GROUPS: <size(groups)>");
     for (cleanNode <- groups){
-        groups = removeSubClones(groups, cleanNode);
+        groups = removeSubClones(groups, cleanNode, currWindowSize);
     }
-    println("Duplicate blocks found: <size(groups)>");
-    for (bucket <- groups){
-        cloneNodes = groups[bucket];
-        cloneNodesLoc = [n.src | n <- cloneNodes];
-        println(cloneNodesLoc);
+    println("AFTER REMOVING SUBCLONES | CLONE GROUPS: <size(groups)>");
+
+    return groups;
+}
+
+// Collects all fragments and groups them
+CloneMap findClones(list[node] asts) {
+    CloneMap groups = ();
+    map[node, int] sizeMap = constructSizeMap(asts);
+
+    <groups, maxWindowSize> = findClonesBasic(groups, sizeMap, asts);
+    groups = cleanGroups(groups, 1);
+    println("Duplicate blocks found after basic: <size(groups)>");
+
+    println("MAXWINDOWSIZE <maxWindowSize>");
+    for (int windowSize <- [2..maxWindowSize]) {
+        groups = findClonesSequence(groups, sizeMap, asts, windowSize);
+
+        groups = cleanGroups(groups, windowSize);
+
+        println("Duplicate blocks found after window size <windowSize>: <size(groups)>");
+        // for (bucket <- groups){
+        //     cloneNodes = groups[bucket];
+        //     cloneNodesLoc = [n.src | n <- cloneNodes];
+        //     println(cloneNodesLoc);
+        // }
     }
+
+
     // groups = filterStartingLinesMoreThanSix(groups);
     // I think this is not doing what we think it is right?
     set[Location] lines = findAffectedLines(groups);
@@ -78,7 +126,7 @@ CloneMap findClones(list[node] asts) {
     return ();
 }
 
-int slidingWindowSize(SizeMap masses, node window) {
+int slidingWindowMass(SizeMap masses, node window) {
     int mass = 0;
 
     switch (getChildren(window)[0]) {
@@ -102,20 +150,12 @@ int slidingWindowSize(SizeMap masses, node window) {
  * @return: newly created 'ghost' parent nodes that include nothing except
  *          all nodes in the sliding window
  */
-list[node] generateSlidingWindows(list[node] nodes) {
+list[node] generateSlidingWindows(list[node] nodes, int length) {
     list[node] acc = [];
 
-    int maxWindowSize = MIN_WINDOW_SIZE + 4;
-
-    if (maxWindowSize < MIN_WINDOW_SIZE) return acc;
-
-    for (windowSize <- [MIN_WINDOW_SIZE..maxWindowSize]) {
-        for (startIdx <- [0..maxWindowSize-windowSize+1]) {
-            acc += "slice"([*nodes[startIdx..startIdx+windowSize]]);
-        }
+    for (startIdx <- [0..size(nodes)-length+1]) {
+        acc += "slice"([*nodes[startIdx..startIdx+length]]);
     }
-
-    // println("\n\n\n\n\n");
 
     return acc;
 }
