@@ -133,10 +133,6 @@ int slidingWindowMass(SizeMap masses, node window) {
                 mass += masses[child];
             }
         }
-        default: {
-            println("wtf");
-            fail;
-        }
     }
     
     return mass;
@@ -152,7 +148,7 @@ list[node] generateSlidingWindows(list[node] nodes, int length) {
     list[node] acc = [];
 
     for (startIdx <- [0..size(nodes)-length+1]) {
-        acc += "slice"([*nodes[startIdx..startIdx+length]]);
+        acc += "slice"(nodes[startIdx..startIdx+length]);
     }
 
     return acc;
