@@ -11,7 +11,7 @@ import lang::java::m3::AST;
 import lang::java::m3::Core;
 
 // Arbitrary number
-int MASSTHRESHOLD = 100;
+int MASSTHRESHOLD = 5000;
 
 int MIN_WINDOW_SIZE = 2;
 
@@ -26,6 +26,8 @@ CloneMap findClones(list[node] asts) {
 
     visit (asts) {
         case node n: {
+            if (!n.src?) fail;
+
             // Filtering based on subtree mass (Ira Baxter paper)
             if (sizeMap[n] >= MASSTHRESHOLD){
                 groups = hashAddNode(groups, n);
@@ -36,8 +38,7 @@ CloneMap findClones(list[node] asts) {
 
             for (node window <- generateSlidingWindows(nodes)) {
                 if (slidingWindowSize(sizeMap, window) >= MASSTHRESHOLD) {
-                    node n = unsetRec(window);
-                    groups[n] ? [] += [n];
+                    groups = hashAddNode(groups, window);
                 }
             }
         }
@@ -91,17 +92,6 @@ list[node] generateSlidingWindows(list[node] nodes) {
     for (windowSize <- [MIN_WINDOW_SIZE..maxWindowSize]) {
         for (startIdx <- [0..maxWindowSize-windowSize+1]) {
             acc += "slice"([*nodes[startIdx..startIdx+windowSize]]);
-
-            // // DEBUGGING
-            // println("\n--- SLICE START ---");
-            // for (n <- nodes[startIdx..startIdx+windowSize]) {
-            //     switch (n.src) {
-            //         case loc src: {
-            //             println("src"(<src.begin.line, src.begin.column>, <src.end.line, src.end.column>));
-            //         }
-            //     }
-            // }
-            // // /DEBUGGING
         }
     }
 
@@ -111,9 +101,6 @@ list[node] generateSlidingWindows(list[node] nodes) {
 }
 
 CloneMap hashAddNode(CloneMap m, node origNode) {
-    // Only process nodes with src data
-    if (!origNode.src?) return m;
-
     // Remove location data (and hopefully not anything important)
     node cleanNode = unsetRec(origNode);
     m[cleanNode] = (m[cleanNode] ? []) + [origNode];
