@@ -135,10 +135,6 @@ int slidingWindowMass(SizeMap masses, node window) {
                 mass += masses[child];
             }
         }
-        default: {
-            println("wtf");
-            fail;
-        }
     }
     
     return mass;
