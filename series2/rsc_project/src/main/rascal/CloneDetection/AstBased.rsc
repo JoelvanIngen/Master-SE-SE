@@ -21,8 +21,7 @@ alias CloneMap = map[node, list[node]];
 
 // Removes all subclone buckets by checking all children
 CloneMap removeSubClones(CloneMap m, node newCleanNode){
-    list[node] kids = getChildren(newCleanNode);
-    visit (kids) {
+    visit (getChildren(newCleanNode)) {
         case node n: {
             if (n in m){
                 m = delete(m, n);
@@ -44,20 +43,28 @@ CloneMap findClones(list[node] asts) {
                 groups = hashAddNode(groups, n);
             }
         }
-        case list[node] nodes: {
-            if (size(nodes) == 0) fail;
+        // case list[node] nodes: {
+        //     if (size(nodes) == 0) fail;
 
-            for (node window <- generateSlidingWindows(nodes)) {
-                if (slidingWindowSize(sizeMap, window) >= MASSTHRESHOLD) {
-                    node n = unsetRec(window);
-                    groups[n] ? [] += [n];
-                }
-            }
-        }
+        //     for (node window <- generateSlidingWindows(nodes)) {
+        //         if (slidingWindowSize(sizeMap, window) >= MASSTHRESHOLD) {
+        //             node n = unsetRec(window);
+        //             groups[n] ? [] += [n];
+        //         }
+        //     }
+        // }
     }
 
     groups = filterRealCloneGroups(groups);
+    for (cleanNode <- groups){
+        groups = removeSubClones(groups, cleanNode);
+    }
     println("Duplicate blocks found: <size(groups)>");
+    for (bucket <- groups){
+        cloneNodes = groups[bucket];
+        cloneNodesLoc = [n.src | n <- cloneNodes];
+        println(cloneNodesLoc);
+    }
     // groups = filterStartingLinesMoreThanSix(groups);
     // I think this is not doing what we think it is right?
     set[Location] lines = findAffectedLines(groups);
