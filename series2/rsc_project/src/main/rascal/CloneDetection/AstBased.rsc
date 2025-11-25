@@ -11,7 +11,7 @@ import lang::java::m3::AST;
 import lang::java::m3::Core;
 
 // Arbitrary number
-int MASSTHRESHOLD = 50;
+int MASSTHRESHOLD = 100;
 
 int MIN_WINDOW_SIZE = 2;
 
@@ -32,11 +32,12 @@ CloneMap findClones(list[node] asts) {
             }
         }
         case list[node] nodes: {
-            if (size(nodes) > 0) {
-                for (node window <- generateSlidingWindow(nodes)) {
-                    if (slidingWindowSize(sizeMap, window) >= MASSTHRESHOLD) {
-                        groups = hashAddNode(groups, window);
-                    }
+            if (size(nodes) == 0) fail;
+
+            for (node window <- generateSlidingWindows(nodes)) {
+                if (slidingWindowSize(sizeMap, window) >= MASSTHRESHOLD) {
+                    node n = unsetRec(window);
+                    groups[n] ? [] += [n];
                 }
             }
         }
@@ -80,31 +81,31 @@ int slidingWindowSize(SizeMap masses, node window) {
  * @return: newly created 'ghost' parent nodes that include nothing except
  *          all nodes in the sliding window
  */
-list[node] generateSlidingWindow(list[node] nodes) {
+list[node] generateSlidingWindows(list[node] nodes) {
     list[node] acc = [];
 
-    int maxWindowSize = size(nodes);
+    int maxWindowSize = MIN_WINDOW_SIZE + 4;
 
     if (maxWindowSize < MIN_WINDOW_SIZE) return acc;
 
     for (windowSize <- [MIN_WINDOW_SIZE..maxWindowSize]) {
         for (startIdx <- [0..maxWindowSize-windowSize+1]) {
-            acc += "slice"(nodes[startIdx..startIdx+windowSize]);
+            acc += "slice"([*nodes[startIdx..startIdx+windowSize]]);
 
-            // DEBUGGING
-            println("\n--- SLICE START ---");
-            for (n <- nodes[startIdx..startIdx+windowSize]) {
-                switch (n.src) {
-                    case loc src: {
-                        println("src"(<src.begin.line, src.begin.column>, <src.end.line, src.end.column>));
-                    }
-                }
-            }
-            // /DEBUGGING
+            // // DEBUGGING
+            // println("\n--- SLICE START ---");
+            // for (n <- nodes[startIdx..startIdx+windowSize]) {
+            //     switch (n.src) {
+            //         case loc src: {
+            //             println("src"(<src.begin.line, src.begin.column>, <src.end.line, src.end.column>));
+            //         }
+            //     }
+            // }
+            // // /DEBUGGING
         }
     }
 
-    println("\n\n\n\n\n");
+    // println("\n\n\n\n\n");
 
     return acc;
 }
