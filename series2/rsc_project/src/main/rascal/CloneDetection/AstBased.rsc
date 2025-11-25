@@ -20,25 +20,21 @@ int MIN_WINDOW_SIZE = 2;
 alias CloneMap = map[node, list[node]];
 
 // Removes all subclone buckets by checking all children
-CloneMap removeSubClones(CloneMap m, node newCleanNode, int currWindowSize){
-    visit (getChildren(newCleanNode)) {
-        case node n: {
-            if (n in m){
-                m = delete(m, n);
+CloneMap removeSubClones(CloneMap bucket, int currWindowSize){
+    for (cleanNode <- bucket){
+        visit (getChildren(cleanNode)) {
+            case node n: {
+                if (n in bucket) bucket = delete(bucket, n);
             }
-        }
-        case list[node] nodes: {
-            if (currWindowSize > 2 && size(nodes) > currWindowSize - 1) {
+            case list[node] nodes: {
                 windowsToRemove = generateSlidingWindows(nodes, currWindowSize - 1);
                 for (n <- windowsToRemove) {
-                    if (n in m) {
-                        m = delete(m, n);
-                    }
+                    if (n in bucket) bucket = delete(bucket, n);
                 }
             }
         }
     }
-    return m;
+    return bucket;
 }
 
 tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node] asts) {
@@ -63,11 +59,9 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
 CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength) {
     visit (asts) {
         case list[node] nodes: {
-            if (size(nodes) >= sequenceLength) {
-                for (node window <- generateSlidingWindows(nodes, sequenceLength)) {
-                    if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
-                        groups = hashAddNode(groups, window);
-                    }
+            for (node window <- generateSlidingWindows(nodes, sequenceLength)) {
+                if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
+                    groups = hashAddNode(groups, window);
                 }
             }
         }
@@ -80,9 +74,7 @@ CloneMap cleanGroups(CloneMap groups, int currWindowSize) {
     println("\nENTERING CLEANING: WINDOW SIZE <currWindowSize> | CLONE GROUPS: <size(groups)>");
     groups = filterRealCloneGroups(groups);
     println("AFTER \"REAL CLONES\" FILTER | CLONE GROUPS: <size(groups)>");
-    for (cleanNode <- groups){
-        groups = removeSubClones(groups, cleanNode, currWindowSize);
-    }
+    groups = removeSubClones(groups, currWindowSize);
     println("AFTER REMOVING SUBCLONES | CLONE GROUPS: <size(groups)>");
 
     return groups;
@@ -146,6 +138,7 @@ int slidingWindowMass(SizeMap masses, node window) {
  */
 list[node] generateSlidingWindows(list[node] nodes, int length) {
     list[node] acc = [];
+    if (size(nodes) <= length || length <= 1) return acc;
 
     for (startIdx <- [0..size(nodes)-length+1]) {
         acc += "slice"(nodes[startIdx..startIdx+length]);
