@@ -10,6 +10,11 @@ import Set;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
+// Arbitrary number
+int MASSTHRESHOLD = 50;
+
+int MIN_WINDOW_SIZE = 2;
+
 // Storing clone groups
 // alias CloneMap = map[node, list[loc]];
 alias CloneMap = map[node, list[node]];
@@ -35,16 +40,24 @@ CloneMap findClones(list[node] asts) {
     visit (asts) {
         case node n: {
             // Filtering based on subtree mass (Ira Baxter paper)
-            // 200 is a TOTALLY ARBITRARY NUMBER
-            if (sizeMap[n] >= 100){
+            if (sizeMap[n] >= MASSTHRESHOLD){
                 groups = hashAddNode(groups, n);
+            }
+        }
+        case list[node] nodes: {
+            if (size(nodes) > 0) {
+                for (node window <- generateSlidingWindow(nodes)) {
+                    if (slidingWindowSize(sizeMap, window) >= MASSTHRESHOLD) {
+                        groups = hashAddNode(groups, window);
+                    }
+                }
             }
         }
     }
 
     groups = filterRealCloneGroups(groups);
     println("Duplicate blocks found: <size(groups)>");
-    groups = filterStartingLinesMoreThanSix(groups);
+    // groups = filterStartingLinesMoreThanSix(groups);
     // I think this is not doing what we think it is right?
     set[Location] lines = findAffectedLines(groups);
     println("Amount of duplicate lines: <size(lines)>");
@@ -54,6 +67,59 @@ CloneMap findClones(list[node] asts) {
 
     // return groups;
     return ();
+}
+
+int slidingWindowSize(SizeMap masses, node window) {
+    int mass = 0;
+
+    switch (getChildren(window)[0]) {
+        case list[node] children: {
+            for (child <- children) {
+                mass += masses[child];
+            }
+        }
+        default: {
+            println("wtf");
+            fail;
+        }
+    }
+    
+    return mass;
+}
+
+/**
+ * Generates all sliding windows over a list of nodes
+ * @param nodes: list of all nodes to slide lists over
+ * @return: newly created 'ghost' parent nodes that include nothing except
+ *          all nodes in the sliding window
+ */
+list[node] generateSlidingWindow(list[node] nodes) {
+    list[node] acc = [];
+
+    int maxWindowSize = size(nodes);
+
+    if (maxWindowSize < MIN_WINDOW_SIZE) return acc;
+
+    for (windowSize <- [MIN_WINDOW_SIZE..maxWindowSize]) {
+        for (startIdx <- [0..maxWindowSize-windowSize+1]) {
+            acc += "slice"(nodes[startIdx..startIdx+windowSize]);
+
+            // DEBUGGING
+            println("\n--- SLICE START ---");
+            for (n <- nodes[startIdx..startIdx+windowSize]) {
+                switch (n.src) {
+                    case loc src: {
+                        println("src"(<src.begin.line, src.begin.column>, <src.end.line, src.end.column>));
+                    }
+                }
+            }
+            // /DEBUGGING
+        }
+    }
+
+    println("\n\n\n\n\n");
+
+    return acc;
 }
 
 CloneMap hashAddNode(CloneMap m, node origNode) {
