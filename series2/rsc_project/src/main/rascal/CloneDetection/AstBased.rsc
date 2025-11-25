@@ -19,6 +19,18 @@ int MIN_WINDOW_SIZE = 2;
 // alias CloneMap = map[node, list[loc]];
 alias CloneMap = map[node, list[node]];
 
+// Removes all subclone buckets by checking all children
+CloneMap removeSubClones(CloneMap m, node newCleanNode){
+    visit (getChildren(newCleanNode)) {
+        case node n: {
+            if (n in m){
+                m = delete(m, n);
+            }
+        }
+    }
+    return m;
+}
+
 // Collects all fragments and groups them
 CloneMap findClones(list[node] asts) {
     CloneMap groups = ();
@@ -45,7 +57,15 @@ CloneMap findClones(list[node] asts) {
     }
 
     groups = filterRealCloneGroups(groups);
+    for (cleanNode <- groups){
+        groups = removeSubClones(groups, cleanNode);
+    }
     println("Duplicate blocks found: <size(groups)>");
+    for (bucket <- groups){
+        cloneNodes = groups[bucket];
+        cloneNodesLoc = [n.src | n <- cloneNodes];
+        println(cloneNodesLoc);
+    }
     // groups = filterStartingLinesMoreThanSix(groups);
     // I think this is not doing what we think it is right?
     set[Location] lines = findAffectedLines(groups);
