@@ -128,10 +128,11 @@ int slidingWindowMass(SizeMap masses, node window) {
 }
 
 /**
- * Generates all sliding windows over a list of nodes
- * @param nodes: list of all nodes to slide lists over
- * @return: newly created 'ghost' parent nodes that include nothing except
- *          all nodes in the sliding window
+ * Generates all possible slices over a list of nodes with given length.
+ * Creates a new 'ghost' parent node containing only the slice as children
+ * @param nodes: list of all nodes to slice over
+ * @param length: length of slices to create
+ * @return: list of newly created 'ghost' parent nodes
  */
 list[node] generateSlidingWindows(list[node] nodes, int length) =
     (size(nodes) <= length || length <= 1) ? [] : (
