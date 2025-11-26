@@ -133,16 +133,12 @@ int slidingWindowMass(SizeMap masses, node window) {
  * @return: newly created 'ghost' parent nodes that include nothing except
  *          all nodes in the sliding window
  */
-list[node] generateSlidingWindows(list[node] nodes, int length) {
-    list[node] acc = [];
-    if (size(nodes) <= length || length <= 1) return acc;
-
-    for (startIdx <- [0..size(nodes)-length+1]) {
-        acc += "slice"(nodes[startIdx..startIdx+length]);
-    }
-
-    return acc;
-}
+list[node] generateSlidingWindows(list[node] nodes, int length) =
+    (size(nodes) <= length || length <= 1) ? [] : (
+        []
+        | it + "slice"(nodes[startIdx..startIdx+length])
+        | startIdx <- [0..size(nodes)-length+1]
+    );
 
 CloneMap hashAddNode(CloneMap m, node origNode) {
     // Remove location data (and hopefully not anything important)
