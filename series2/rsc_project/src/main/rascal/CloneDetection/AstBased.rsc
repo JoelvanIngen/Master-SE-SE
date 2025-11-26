@@ -69,14 +69,20 @@ CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, i
     return groups;
 }
 
-CloneMap cleanGroups(CloneMap groups, int currWindowSize) {
+/**
+ * Cleans the created groups by filtering non-clone groups and removing subclones
+ * Returns the cleaned groups, and the amount of groups after non-clone group
+ * filtering, allowing for early exit if no new detections will take place
+ */
+tuple[CloneMap, int] cleanGroups(CloneMap groups, int currWindowSize) {
     println("\nENTERING CLEANING: WINDOW SIZE <currWindowSize> | CLONE GROUPS: <size(groups)>");
     groups = filterRealCloneGroups(groups);
+    int earlyExitCloneNumber = size(groups);
     println("AFTER \"REAL CLONES\" FILTER | CLONE GROUPS: <size(groups)>");
     groups = removeSubClones(groups, currWindowSize);
     println("AFTER REMOVING SUBCLONES | CLONE GROUPS: <size(groups)>");
 
-    return groups;
+    return <groups, earlyExitCloneNumber>;
 }
 
 // Collects all fragments and groups them
@@ -85,14 +91,21 @@ CloneMap findClones(list[node] asts) {
     map[node, int] sizeMap = constructSizeMap(asts);
 
     <groups, maxWindowSize> = findClonesBasic(groups, sizeMap, asts);
-    groups = cleanGroups(groups, 1);
+    <groups, _> = cleanGroups(groups, 1);
     println("Duplicate blocks found after basic: <size(groups)>");
 
     println("MAXWINDOWSIZE <maxWindowSize>");
     for (int windowSize <- [2..maxWindowSize]) {
+        int earlyExitOldClones = size(groups);
+
         groups = findClonesSequence(groups, sizeMap, asts, windowSize);
 
-        groups = cleanGroups(groups, windowSize);
+        <groups, earlyExitNewClones> = cleanGroups(groups, windowSize);
+
+        if (earlyExitOldClones == earlyExitNewClones) {
+            println("Terminating early; no new clones have been found and no existing groups were extended");
+            break;
+        }
 
         println("Duplicate blocks found after window size <windowSize>: <size(groups)>");
         // for (bucket <- groups){
