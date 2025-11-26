@@ -16,7 +16,6 @@ int MASSTHRESHOLD = 50;
 int MIN_WINDOW_SIZE = 2;
 
 // Storing clone groups
-// alias CloneMap = map[node, list[loc]];
 alias CloneMap = map[node, list[node]];
 
 // Removes all subclone buckets by checking all children
