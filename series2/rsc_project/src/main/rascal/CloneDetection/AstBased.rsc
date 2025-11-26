@@ -102,8 +102,6 @@ CloneMap findClones(list[node] asts) {
         // }
     }
 
-
-    // groups = filterStartingLinesMoreThanSix(groups);
     // I think this is not doing what we think it is right?
     set[Location] lines = findAffectedLines(groups);
     println("Amount of duplicate lines: <size(lines)>");
@@ -165,23 +163,6 @@ CloneMap filterRealCloneGroups(CloneMap gs) {
         targets = gs[g];
         if (size(targets) >= 2) {
             filteredGs[g] = targets;
-        }
-    }
-
-    return filteredGs;
-}
-
-/**
- * Constructs a new CloneMap, keeping only clones that affect 6 or more lines
- */
-CloneMap filterStartingLinesMoreThanSix(CloneMap gs) {
-    CloneMap filteredGs = ();
-
-    for (g <- gs) {
-        // Only take first clone segment, they'll all be comparable anyways
-        startingLines = getStartingLines(gs[g]);
-        if (size(startingLines) >= 6) {
-            filteredGs[g] = gs[g];
         }
     }
 
