@@ -20,19 +20,22 @@ alias CloneMap = map[node, list[node]];
 
 // Removes all subclone buckets by checking all children
 CloneMap removeSubClones(CloneMap bucket, int currWindowSize){
+    set[node] nodesToRemove = {};
     for (cleanNode <- bucket){
         visit (getChildren(cleanNode)) {
             case node n: {
-                if (n in bucket) bucket = delete(bucket, n);
+                if ((n in bucket) && (size(bucket[n]) == size(bucket[cleanNode]))) nodesToRemove += n;
+
             }
             case list[node] nodes: {
                 windowsToRemove = generateSlidingWindows(nodes, currWindowSize - 1);
                 for (n <- windowsToRemove) {
-                    if (n in bucket) bucket = delete(bucket, n);
+                    if (n in bucket && (size(bucket[n]) == size(bucket[cleanNode]))) nodesToRemove += n;;
                 }
             }
         }
     }
+    bucket = (n: bucket[n] | n <- bucket, n notin nodesToRemove);
     return bucket;
 }
 
