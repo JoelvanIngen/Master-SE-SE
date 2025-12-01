@@ -18,19 +18,28 @@ int MIN_WINDOW_SIZE = 2;
 // Storing clone groups
 alias CloneMap = map[node, list[node]];
 
+/**
+ * Removes a child clone class from the bucket if it's actually a child of the parent,
+ * but keeps it in case one of the targeted code segments is not extended, to prevent
+ * loss of partial clones
+ */
+set[node] removeIfTrueParentClass(CloneMap bucket, node cleanNode, node n){
+    set[node] nodesToRemove = {};
+    return n in bucket && size(bucket[cleanNode]) == size(bucket[n]) ? {n} : nodesToRemove;
+}
+
 // Removes all subclone buckets by checking all children
 CloneMap removeSubClones(CloneMap bucket, int currWindowSize){
     set[node] nodesToRemove = {};
     for (cleanNode <- bucket){
         visit (getChildren(cleanNode)) {
             case node n: {
-                if ((n in bucket) && (size(bucket[n]) == size(bucket[cleanNode]))) nodesToRemove += n;
-
+                nodesToRemove += removeIfTrueParentClass(bucket, cleanNode, n);
             }
             case list[node] nodes: {
                 windowsToRemove = generateSlidingWindows(nodes, currWindowSize - 1);
                 for (n <- windowsToRemove) {
-                    if (n in bucket && (size(bucket[n]) == size(bucket[cleanNode]))) nodesToRemove += n;;
+                    nodesToRemove += removeIfTrueParentClass(bucket, cleanNode, n);
                 }
             }
         }
