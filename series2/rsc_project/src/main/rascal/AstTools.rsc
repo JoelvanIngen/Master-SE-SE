@@ -2,6 +2,7 @@ module AstTools
 
 import Aliases;
 import IO;
+import Location;
 import Node;
 import Type;
 

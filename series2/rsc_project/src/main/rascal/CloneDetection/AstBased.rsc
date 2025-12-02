@@ -4,12 +4,14 @@ import Aliases;
 import AstTools;
 import IO;
 import List;
+import Location;
 import Map;
 import Node;
 import Set;
 import String;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
+import util::Progress;
 
 // Arbitrary number
 int MASSTHRESHOLD = 50;
@@ -223,15 +225,63 @@ void printCloneLocs(CloneMap m) {
 
 
 // Only for quick testing purposes
-value getSrc(node n) {
-    if (n has src) return n.src;
+loc getSrc(node n) {
+    if (n has src) {
+        return castLoc(n);
+    }
+
     switch (getChildren(n)[0]) {
         case list[node] ns: {
-            f = castLoc(ns[0]);
-            l = castLoc(ns[-1]);
-            return "<f.top>(<f.offset>,<f.length>,<f.begin>,<l.end>)";
+            f = getSrc(ns[0]);
+            l = getSrc(ns[-1]);
+
+            // TEMPORARY FIX FOR DIFFERENT FILES
+            if (!isSameFile(f, l)) return f;
+
+            return cover([f, l]);
         }
     }
 
-    throw("Node has no src and no list of child nodes");
+    throw "what";
+}
+
+
+// Ugly function should be rewritten
+CloneMap removeOverlap(CloneMap m) {
+    // Remove overlapping
+    <pbarUpdate, pbarTerminate> = progressBar(size(m), prefix="Class:");
+
+    int i = 0;
+    for (class <- m) {
+        i += 1;
+        pbarUpdate("Class <i>/<size(m)>");
+        clones = m[class];
+        set[int] idxsToDelete = {};
+        for (testCloneIdx <- [1 .. size(clones)]) {
+            testClone = clones[testCloneIdx];
+            for (compareCloneIdx <- [0 .. testCloneIdx]) {
+                compareClone = clones[compareCloneIdx];
+
+                if (isOverlapping(getSrc(testClone), getSrc(compareClone))) {
+                    idxsToDelete += {testCloneIdx};
+                    break;
+                }
+            }
+        }
+        
+        list[node] newClones = [];
+        for (<i, clone> <- zip2([0..size(clones)], clones)) {
+            if (i notin idxsToDelete) newClones += [clone];
+        }
+
+        m[class] = newClones;
+    }
+
+    // Drop clones that were only overlapping parts
+    // filter function ??
+    for (class <- m) {
+        if (size(m[class]) == 1) delete(m, class);
+    }
+
+    return m;
 }
