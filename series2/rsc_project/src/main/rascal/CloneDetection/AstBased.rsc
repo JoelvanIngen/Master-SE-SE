@@ -119,21 +119,10 @@ CloneMap findClones(list[node] asts) {
             println("Terminating early; no new clones have been found and no existing groups were extended");
             break;
         }
-
-        println("Duplicate blocks found after window size <windowSize>: <size(groups)>");
-        // for (bucket <- groups){
-        //     cloneNodes = groups[bucket];
-        //     cloneNodesLoc = [n.src | n <- cloneNodes];
-        //     println(cloneNodesLoc);
-        // }
     }
 
-    // I think this is not doing what we think it is right?
     set[Location] lines = findAffectedLines(groups);
     println("Amount of duplicate lines: <size(lines)>");
-
-    // println(toList(lines)[0..10]);
-    // println(toList(groups)[0]);
 
     return groups;
 }
@@ -143,12 +132,10 @@ int slidingWindowMass(SizeMap masses, node window) {
 
     switch (getChildren(window)[0]) {
         case list[node] children: {
-            for (child <- children) {
-                mass += masses[child];
-            }
+            mass = sum([masses[child] | node child <- children]);
         }
     }
-    
+
     return mass;
 }
 
@@ -179,32 +166,15 @@ CloneMap hashAddNode(CloneMap m, node origNode) {
  * member, as a one-membered group will only contain an original.
  */
 CloneMap filterRealCloneGroups(CloneMap gs) {
-    CloneMap filteredGs = ();
-
-    for (g <- gs) {
-        targets = gs[g];
-        if (size(targets) >= 2) {
-            filteredGs[g] = targets;
-        }
-    }
-
-    return filteredGs;
+    return (g: (gs[g]) | g <- gs, size(gs[g]) > 1);
 }
 
 /**
- * Finds all lines that belong to clones (not originals)
+ * Finds all lines that belong to clone class
  */
-set[Location] findAffectedLines(CloneMap gs) {
-    set[Location] affectedLines = {};
-
-    for (g <- gs) {
-        // Skip original
-        for (clone <- gs[g][1..]) {
-            affectedLines += getStartingLines(clone);
-        }
-    }
-
-    return affectedLines;
+set[Location] findAffectedLines(CloneMap groups) {
+    return { line | group <- groups, clone <- groups[group],
+                     line <- getStartingLines(clone) };
 }
 
 
