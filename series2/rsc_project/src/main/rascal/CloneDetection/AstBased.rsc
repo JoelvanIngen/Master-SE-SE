@@ -7,6 +7,7 @@ import List;
 import Map;
 import Node;
 import Set;
+import String;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
@@ -134,8 +135,7 @@ CloneMap findClones(list[node] asts) {
     // println(toList(lines)[0..10]);
     // println(toList(groups)[0]);
 
-    // return groups;
-    return ();
+    return groups;
 }
 
 int slidingWindowMass(SizeMap masses, node window) {
@@ -205,4 +205,33 @@ set[Location] findAffectedLines(CloneMap gs) {
     }
 
     return affectedLines;
+}
+
+
+// Only for quick testing purposes
+void printCloneLocs(CloneMap m) {
+    int i = 0;
+    for (class <- m) {
+        println("\nCLASS <i>:");
+        for (clone <- m[class]) {
+            value location = getSrc(clone);
+            if (!(contains("<location>", "Language"))) println("\t<location>");
+        }
+        i += 1;
+    }
+}
+
+
+// Only for quick testing purposes
+value getSrc(node n) {
+    if (n has src) return n.src;
+    switch (getChildren(n)[0]) {
+        case list[node] ns: {
+            f = castLoc(ns[0]);
+            l = castLoc(ns[-1]);
+            return "<f.top>(<f.offset>,<f.length>,<f.begin>,<l.end>)";
+        }
+    }
+
+    throw("Node has no src and no list of child nodes");
 }
