@@ -240,8 +240,8 @@ CloneMap removeOverlap(CloneMap m) {
         }
         
         list[node] newClones = [];
-        for (<i, clone> <- zip2([0..size(clones)], clones)) {
-            if (i notin idxsToDelete) newClones += [clone];
+        for (<cloneIdx, clone> <- zip2([0..size(clones)], clones)) {
+            if (cloneIdx notin idxsToDelete) newClones += [clone];
         }
 
         m[class] = newClones;
