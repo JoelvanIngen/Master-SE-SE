@@ -224,8 +224,8 @@ CloneMap removeOverlap(CloneMap m) {
     int i = 0;
     for (class <- m) {
         i += 1;
-        pbarUpdate("Class <i>/<size(m)>");
         clones = m[class];
+        pbarUpdate("Class <i>/<size(m)> | Amount of clones in class: <size(clones)    >");
         set[int] idxsToDelete = {};
         for (testCloneIdx <- [1 .. size(clones)]) {
             testClone = clones[testCloneIdx];
