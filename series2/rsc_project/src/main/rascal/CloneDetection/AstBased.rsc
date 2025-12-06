@@ -72,8 +72,10 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
 
 CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength) {
     visit (asts) {
-        case list[node] nodes: {
-            for (node window <- generateSlidingWindows(nodes, sequenceLength)) {
+        case list[node] statements: {
+        // case \block(list[Statement] statements):{
+        // an alternative to previous approach, but removes some valid clones ...
+            for (node window <- generateSlidingWindows(statements, sequenceLength)) {
                 if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
                     groups = hashAddNode(groups, window);
                 }
@@ -125,6 +127,8 @@ CloneMap findClones(list[node] asts) {
 
     set[Location] lines = findAffectedLines(groups);
     println("Amount of duplicate lines: <size(lines)>");
+
+    printCloneLocs(groups);
 
     return groups;
 }
@@ -238,7 +242,7 @@ CloneMap removeOverlap(CloneMap m) {
                 }
             }
         }
-        
+
         list[node] newClones = [];
         for (<cloneIdx, clone> <- zip2([0..size(clones)], clones)) {
             if (cloneIdx notin idxsToDelete) newClones += [clone];
