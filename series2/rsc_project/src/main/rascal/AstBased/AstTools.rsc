@@ -5,9 +5,11 @@ import IO;
 import Location;
 import Node;
 import Type;
+import List;
 
 // Relates unique node (with src) to its size including (nested) children
 alias SizeMap = map[node, int];
+
 
 list[node] getAllSubtrees(list[node] asts) {
     list[node] subtrees = [];
@@ -17,6 +19,7 @@ list[node] getAllSubtrees(list[node] asts) {
     return subtrees;
 }
 
+
 list[node] getSubtrees(node ast) {
     list[node] subtrees = [];
     visit(ast) {
@@ -24,6 +27,7 @@ list[node] getSubtrees(node ast) {
     }
     return subtrees;
 }
+
 
 int constructSizeFromChildren(SizeMap m, node n) {
     int s = 1;
@@ -48,16 +52,9 @@ int constructSizeFromChildren(SizeMap m, node n) {
     return s;
 }
 
-int constructSize(SizeMap m, node n) {
-    return arity(n) == 0
-        ? 1
-        : constructSizeFromChildren(m, n);
-}
 
 /**
- * Constructs a cache with all sizes of all relevant nodes in an AST
-
- * NEEDS TESTING
+ * Builds a map of all AST nodes to their sizes (mass) for quick lookup.
  */
 SizeMap constructSizeMap(list[node] nodes) {
     SizeMap m = ();
@@ -70,6 +67,31 @@ SizeMap constructSizeMap(list[node] nodes) {
     return m;
 }
 
+
+/**
+ * Computes the size of a single AST node, including its children.
+ */
+int constructSize(SizeMap m, node n) {
+    return arity(n) == 0
+        ? 1
+        : constructSizeFromChildren(m, n);
+}
+
+
+/**
+ * Computes the total mass of a sequence of nodes using the size map.
+ */
+int slidingWindowMass(SizeMap masses, node window) {
+    int mass = 0;
+
+    switch (getChildren(window)[0]) {
+        case list[node] children: {
+            mass = sum([masses[child] | node child <- children]);
+        }
+    }
+
+    return mass;
+}
 
 
 /**
@@ -85,7 +107,9 @@ Location extractStartingLine(node n) {
     fail;
 }
 
+
 set[Location] getStartingLines(node n) = getStartingLines([n]);
+
 
 set[Location] getStartingLines(list[node] nodes) {
     set[Location] s = {};
