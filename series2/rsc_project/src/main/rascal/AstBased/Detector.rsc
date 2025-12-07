@@ -119,6 +119,7 @@ void printCloneLocs(CloneMap m) {
         println("\nCLASS <i>:");
         for (clone <- m[class]) {
             value location = getSrc(clone);
+            // TODO: this is hardcoded, find a way to deal with it
             if (!(contains("<location>", "Language"))) println("\t<location>");
         }
         i += 1;

@@ -10,25 +10,6 @@ import List;
 // Relates unique node (with src) to its size including (nested) children
 alias SizeMap = map[node, int];
 
-
-list[node] getAllSubtrees(list[node] asts) {
-    list[node] subtrees = [];
-    for (ast <- asts) {
-        subtrees += getSubtrees(ast);
-    }
-    return subtrees;
-}
-
-
-list[node] getSubtrees(node ast) {
-    list[node] subtrees = [];
-    visit(ast) {
-        case node n: subtrees += n;
-    }
-    return subtrees;
-}
-
-
 int constructSizeFromChildren(SizeMap m, node n) {
     int s = 1;
 
@@ -109,7 +90,6 @@ Location extractStartingLine(node n) {
 
 
 set[Location] getStartingLines(node n) = getStartingLines([n]);
-
 
 set[Location] getStartingLines(list[node] nodes) {
     set[Location] s = {};
