@@ -60,6 +60,7 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
                 groups = cloneMapHashNode(groups, n);
             }
         }
+        // Used to determine max window size (used later for sequences)
         case list[node] ns: {
             int s = size(ns);
             if (s > biggestList) biggestList = s;
@@ -188,46 +189,4 @@ void printCloneLocs(CloneMap m) {
         }
         i += 1;
     }
-}
-
-
-// Ugly function should be rewritten
-/**
- * Removes overlapping clones from each class in a CloneMap.
- * If a class ends up with only one clone, it is removed completely.
- */
-CloneMap removeOverlap(CloneMap groups) {
-    <pbarUpdate, pbarTerminate> = progressBar(size(groups), prefix="Class:");
-
-    CloneMap newGroups = ();
-    int processed = 0;
-
-    for (class <- groups) {
-        // Progress Bar Updates
-        processed += 1;
-        list[node] clones = groups[class];
-        int clonesSize = size(clones);
-        pbarUpdate("Class <processed>/<size(groups)> | Clones in class: <clonesSize>");
-
-        // Determine which clone indices should be removed
-        set[int] toRemove =
-            { i
-            | i <- [0 .. clonesSize - 1],
-              j <- [0 .. i - 1], // Only compare with earlier clones
-              isOverlapping(getSrc(clones[i]), getSrc(clones[j]))
-            };
-
-        // Keep only clones whose indices are not in 'toRemove'
-        newGroups[class] = [ clones[i] | i <- [0 .. size(clones) - 1], i notin toRemove ];
-    }
-
-    // Remove classes that have only one clone left
-    // filter function ?? -> ?
-    for (class <- newGroups) {
-        if (size(newGroups[class]) <= 1) {
-            delete(newGroups, class);
-        }
-    }
-
-    return newGroups;
 }
