@@ -71,8 +71,10 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
 
 CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength) {
     visit (asts) {
-        case list[node] nodes: {
-            for (node window <- generateSlidingWindows(nodes, sequenceLength)) {
+        case list[node] statements: {
+        // case \block(list[Statement] statements):{
+        // an alternative to previous approach, but removes some valid clones ...
+            for (node window <- generateSlidingWindows(statements, sequenceLength)) {
                 if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
                     groups = cloneMapHashNode(groups, window);
                 }
@@ -122,8 +124,12 @@ CloneMap findClones(list[node] asts) {
         }
     }
 
+    groups = removeOverlap(groups);
+
     set[Location] lines = findAffectedLines(groups);
     println("Amount of duplicate lines: <size(lines)>");
+
+    printCloneLocs(groups);
 
     return groups;
 }
@@ -186,41 +192,42 @@ void printCloneLocs(CloneMap m) {
 
 
 // Ugly function should be rewritten
-CloneMap removeOverlap(CloneMap m) {
-    // Remove overlapping
-    <pbarUpdate, pbarTerminate> = progressBar(size(m), prefix="Class:");
+/**
+ * Removes overlapping clones from each class in a CloneMap.
+ * If a class ends up with only one clone, it is removed completely.
+ */
+CloneMap removeOverlap(CloneMap groups) {
+    <pbarUpdate, pbarTerminate> = progressBar(size(groups), prefix="Class:");
 
-    int i = 0;
-    for (class <- m) {
-        i += 1;
-        clones = m[class];
-        pbarUpdate("Class <i>/<size(m)> | Amount of clones in class: <size(clones)    >");
-        set[int] idxsToDelete = {};
-        for (testCloneIdx <- [1 .. size(clones)]) {
-            testClone = clones[testCloneIdx];
-            for (compareCloneIdx <- [0 .. testCloneIdx]) {
-                compareClone = clones[compareCloneIdx];
+    CloneMap newGroups = ();
+    int processed = 0;
 
-                if (isOverlapping(getSrc(testClone), getSrc(compareClone))) {
-                    idxsToDelete += {testCloneIdx};
-                    break;
-                }
-            }
-        }
-        
-        list[node] newClones = [];
-        for (<cloneIdx, clone> <- zip2([0..size(clones)], clones)) {
-            if (cloneIdx notin idxsToDelete) newClones += [clone];
-        }
+    for (class <- groups) {
+        // Progress Bar Updates
+        processed += 1;
+        list[node] clones = groups[class];
+        int clonesSize = size(clones);
+        pbarUpdate("Class <processed>/<size(groups)> | Clones in class: <clonesSize>");
 
-        m[class] = newClones;
+        // Determine which clone indices should be removed
+        set[int] toRemove =
+            { i
+            | i <- [0 .. clonesSize - 1],
+              j <- [0 .. i - 1], // Only compare with earlier clones
+              isOverlapping(getSrc(clones[i]), getSrc(clones[j]))
+            };
+
+        // Keep only clones whose indices are not in 'toRemove'
+        newGroups[class] = [ clones[i] | i <- [0 .. size(clones) - 1], i notin toRemove ];
     }
 
-    // Drop clones that were only overlapping parts
-    // filter function ??
-    for (class <- m) {
-        if (size(m[class]) == 1) delete(m, class);
+    // Remove classes that have only one clone left
+    // filter function ?? -> ?
+    for (class <- newGroups) {
+        if (size(newGroups[class]) <= 1) {
+            delete(newGroups, class);
+        }
     }
 
-    return m;
+    return newGroups;
 }
