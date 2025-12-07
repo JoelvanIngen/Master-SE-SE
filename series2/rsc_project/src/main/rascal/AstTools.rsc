@@ -100,10 +100,3 @@ set[Location] getStartingLines(list[node] nodes) {
 
     return s;
 }
-
-loc castLoc(node n) {
-    switch (n.src) {
-        case loc src: return src;
-        default: throw "Node <n> has no src";
-    }
-}

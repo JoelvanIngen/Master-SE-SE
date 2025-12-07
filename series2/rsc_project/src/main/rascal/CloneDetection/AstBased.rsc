@@ -1,7 +1,9 @@
 module CloneDetection::AstBased
 
 import Aliases;
+import Ast::Node;
 import AstTools;
+import Clone::CloneMap;
 import IO;
 import List;
 import Location;
@@ -17,9 +19,6 @@ import util::Progress;
 int MASSTHRESHOLD = 50;
 
 int MIN_WINDOW_SIZE = 2;
-
-// Storing clone groups
-alias CloneMap = map[node, list[node]];
 
 /**
  * Removes a child clone class from the bucket if it's actually a child of the parent,
@@ -58,7 +57,7 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
         case node n: {
             // Filtering based on subtree mass (Ira Baxter paper)
             if ((n has src) && (sizeMap[n] >= MASSTHRESHOLD)){
-                groups = hashAddNode(groups, n);
+                groups = cloneMapHashNode(groups, n);
             }
         }
         case list[node] ns: {
@@ -75,7 +74,7 @@ CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, i
         case list[node] nodes: {
             for (node window <- generateSlidingWindows(nodes, sequenceLength)) {
                 if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
-                    groups = hashAddNode(groups, window);
+                    groups = cloneMapHashNode(groups, window);
                 }
             }
         }
@@ -155,14 +154,6 @@ list[node] generateSlidingWindows(list[node] nodes, int length) =
         | startIdx <- [0..size(nodes)-length+1]
     );
 
-CloneMap hashAddNode(CloneMap m, node origNode) {
-    // Remove location data (and hopefully not anything important)
-    node cleanNode = unsetRec(origNode);
-    m[cleanNode] = (m[cleanNode] ? []) + [origNode];
-
-    return m;
-}
-
 /**
  * Constructs a new clonegroup map, only keeping groups with more than 1
  * member, as a one-membered group will only contain an original.
@@ -191,28 +182,6 @@ void printCloneLocs(CloneMap m) {
         }
         i += 1;
     }
-}
-
-
-// Only for quick testing purposes
-loc getSrc(node n) {
-    if (n has src) {
-        return castLoc(n);
-    }
-
-    switch (getChildren(n)[0]) {
-        case list[node] ns: {
-            f = getSrc(ns[0]);
-            l = getSrc(ns[-1]);
-
-            // TEMPORARY FIX FOR DIFFERENT FILES
-            if (!isSameFile(f, l)) return f;
-
-            return cover([f, l]);
-        }
-    }
-
-    throw "what";
 }
 
 
