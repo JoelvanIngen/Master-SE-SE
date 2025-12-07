@@ -1,6 +1,7 @@
-module Text::LineCleaning
+module LineBased::LineCleaning
 
 import IO;
+import List;
 import String;
 
 /**

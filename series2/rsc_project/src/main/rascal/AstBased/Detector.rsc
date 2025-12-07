@@ -1,9 +1,6 @@
-module CloneDetection::AstBased
+module AstBased::Detector
 
 import Aliases;
-import Ast::Node;
-import AstTools;
-import Clone::CloneMap;
 import IO;
 import List;
 import Location;
@@ -14,6 +11,10 @@ import String;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 import util::Progress;
+
+import AstBased::AstTools;
+import AstBased::CloneMapHelpers;
+import AstBased::Location;
 
 // Arbitrary number
 int MASSTHRESHOLD = 50;
@@ -30,26 +31,6 @@ set[node] removeIfTrueParentClass(CloneMap bucket, node cleanNode, node n){
     return n in bucket && size(bucket[cleanNode]) == size(bucket[n]) ? {n} : nodesToRemove;
 }
 
-// Removes all subclone buckets by checking all children
-CloneMap removeSubClones(CloneMap bucket, int currWindowSize){
-    set[node] nodesToRemove = {};
-    for (cleanNode <- bucket){
-        visit (getChildren(cleanNode)) {
-            case node n: {
-                nodesToRemove += removeIfTrueParentClass(bucket, cleanNode, n);
-            }
-            case list[node] nodes: {
-                windowsToRemove = generateSlidingWindows(nodes, currWindowSize - 1);
-                for (n <- windowsToRemove) {
-                    nodesToRemove += removeIfTrueParentClass(bucket, cleanNode, n);
-                }
-            }
-        }
-    }
-    bucket = (n: bucket[n] | n <- bucket, n notin nodesToRemove);
-    return bucket;
-}
-
 tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node] asts) {
     int biggestList = 0;
 
@@ -57,7 +38,7 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
         case node n: {
             // Filtering based on subtree mass (Ira Baxter paper)
             if ((n has src) && (sizeMap[n] >= MASSTHRESHOLD)){
-                groups = cloneMapHashNode(groups, n);
+                groups = addNodeToCloneMap(groups, n);
             }
         }
         // Used to determine max window size (used later for sequences)
@@ -77,29 +58,13 @@ CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, i
         // an alternative to previous approach, but removes some valid clones ...
             for (node window <- generateSlidingWindows(statements, sequenceLength)) {
                 if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
-                    groups = cloneMapHashNode(groups, window);
+                    groups = addNodeToCloneMap(groups, window);
                 }
             }
         }
     }
 
     return groups;
-}
-
-/**
- * Cleans the created groups by filtering non-clone groups and removing subclones
- * Returns the cleaned groups, and the amount of groups after non-clone group
- * filtering, allowing for early exit if no new detections will take place
- */
-tuple[CloneMap, int] cleanGroups(CloneMap groups, int currWindowSize) {
-    println("\nENTERING CLEANING: WINDOW SIZE <currWindowSize> | CLONE GROUPS: <size(groups)>");
-    groups = filterRealCloneGroups(groups);
-    int earlyExitCloneNumber = size(groups);
-    println("AFTER \"REAL CLONES\" FILTER | CLONE GROUPS: <size(groups)>");
-    groups = removeSubClones(groups, currWindowSize);
-    println("AFTER REMOVING SUBCLONES | CLONE GROUPS: <size(groups)>");
-
-    return <groups, earlyExitCloneNumber>;
 }
 
 // Collects all fragments and groups them
@@ -125,8 +90,6 @@ CloneMap findClones(list[node] asts) {
         }
     }
 
-    groups = removeOverlap(groups);
-
     set[Location] lines = findAffectedLines(groups);
     println("Amount of duplicate lines: <size(lines)>");
 
@@ -147,27 +110,6 @@ int slidingWindowMass(SizeMap masses, node window) {
     return mass;
 }
 
-/**
- * Generates all possible slices over a list of nodes with given length.
- * Creates a new 'ghost' parent node containing only the slice as children
- * @param nodes: list of all nodes to slice over
- * @param length: length of slices to create
- * @return: list of newly created 'ghost' parent nodes
- */
-list[node] generateSlidingWindows(list[node] nodes, int length) =
-    (size(nodes) <= length || length <= 1) ? [] : (
-        []
-        | it + "slice"(nodes[startIdx..startIdx+length])
-        | startIdx <- [0..size(nodes)-length+1]
-    );
-
-/**
- * Constructs a new clonegroup map, only keeping groups with more than 1
- * member, as a one-membered group will only contain an original.
- */
-CloneMap filterRealCloneGroups(CloneMap gs) {
-    return (g: (gs[g]) | g <- gs, size(gs[g]) > 1);
-}
 
 /**
  * Finds all lines that belong to clone class

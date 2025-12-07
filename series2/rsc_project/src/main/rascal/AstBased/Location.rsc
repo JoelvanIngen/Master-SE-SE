@@ -1,7 +1,9 @@
-module Ast::Node::Loc
+module AstBased::Location
 
 import Location;
 import Node;
+import lang::java::m3::AST;
+import lang::java::m3::Core;
 
 /**
  * Retrieves the location from a node and returns it as loc type.
@@ -33,15 +35,11 @@ loc constructLocForWindow(node n) {
 }
 
 /**
- * Either:
- *   - Retrieves the location attribute from a node that contains a src
- *   - Constructs a loc for a "ghost" node for a window slice
- * depending on the type of node
+ * Gets the location attribute from a node that contains a src
+ * OR
+ * Constructs a loc for a "ghost" node for a window slice
  */
 loc getSrc(node n) {
-    if (n has src) {
-        return castLoc(n);
-    }
-
+    if (n has src) return castLoc(n);
     return constructLocForWindow(n);
 }

@@ -1,7 +1,6 @@
-module CloneDetection::Type1
+module LineBased::Detector
 
 import Aliases;
-import Helpers;
 import IO;
 import List;
 import Map;

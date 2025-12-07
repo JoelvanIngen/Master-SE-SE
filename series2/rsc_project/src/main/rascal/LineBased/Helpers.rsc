@@ -1,4 +1,4 @@
-module Helpers
+module LineBased::Helpers
 
 import IO;
 import List;

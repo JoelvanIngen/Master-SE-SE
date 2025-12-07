@@ -1,11 +1,10 @@
 module Main
 
-import CloneDetection::Type1;
-import Helpers;
 import IO;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
-import Text::LineCleaning;
+
+import LineBased::LineBased;
 
 
 list[Declaration] getASTs(loc projectLocation) {
