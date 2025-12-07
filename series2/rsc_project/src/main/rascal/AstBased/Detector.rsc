@@ -92,9 +92,17 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
  */
 CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength) {
     visit (asts) {
-        case list[node] statements: {
-        // case \block(list[Statement] statements):{
+        // case list[node] statements: {
+        case \block(list[Statement] statements):{
         // an alternative to previous approach, but removes some valid clones ...
+            for (node window <- generateSlidingWindows(statements, sequenceLength)) {
+                if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
+                    groups = addNodeToCloneMap(groups, window);
+                }
+            }
+        }
+        case \switch(_, list[Statement] statements):{
+        // COPY PASTED FROM BLOCK ABOVE
             for (node window <- generateSlidingWindows(statements, sequenceLength)) {
                 if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
                     groups = addNodeToCloneMap(groups, window);
@@ -116,15 +124,33 @@ set[Location] findAffectedLines(CloneMap groups) {
 
 
 // Only for quick testing purposes
-void printCloneLocs(CloneMap m) {
+set[value] printCloneLocs(CloneMap m) {
+    set[value] locations = {};
     int i = 0;
     for (class <- m) {
         println("\nCLASS <i>:");
         for (clone <- m[class]) {
             value location = getSrc(clone);
             // TODO: this is hardcoded, find a way to deal with it
-            if (!(contains("<location>", "Language"))) println("\t<location>");
+            if (!(contains("<location>", "Language"))){
+                println("\t<location>");
+                locations += location;
+            }
         }
         i += 1;
+    }
+    return locations;
+}
+
+// For debugging:
+// clonemap_list = findClones(asts);
+// clonemap_stmt_switch = findClones(asts); // AFTER ALGORITHM CHANGES
+// showDifference(clonemap_stmt_switch, clonemap_list);
+void showDifference(CloneMap m1, CloneMap m2){
+    set[value] set1 = printCloneLocs(m1);
+    set[value] set2 = printCloneLocs(m2);
+    set[value] difference = set1 - set2;
+    for (value location <- difference){
+        println("\t<location>");
     }
 }

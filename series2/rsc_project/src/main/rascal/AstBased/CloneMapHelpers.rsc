@@ -25,7 +25,6 @@ CloneMap addNodeToCloneMap(CloneMap groups, node origNode) {
     origSrc = getSrc(origNode);
     for (cand <- otherCloneCandidates) {
         if (isOverlapping(getSrc(cand), origSrc)){
-            println("DEBUGGING");
             return groups;
         }
     }
