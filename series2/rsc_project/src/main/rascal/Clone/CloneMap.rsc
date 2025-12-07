@@ -22,7 +22,7 @@ CloneMap cloneMapHashNode(CloneMap m, node origNode) {
     for (cand <- otherCloneCandidates) {
         if (isOverlapping(getSrc(cand), origSrc)) return m;
     }
-    m[cleanNode] = m[cleanNode] + [origNode];
+    m[cleanNode] += [origNode];
 
     return m;
 }
