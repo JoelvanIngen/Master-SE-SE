@@ -30,16 +30,16 @@ CloneMap findClones(list[node] asts) {
     CloneMap groups = ();
     map[node, int] sizeMap = constructSizeMap(asts);
 
+    // BASIC CLONE SEARCH
     <groups, maxWindowSize> = findClonesBasic(groups, sizeMap, asts);
     <groups, _> = cleanGroups(groups, 1);
-    println("Duplicate blocks found after basic: <size(groups)>");
+    int basicCloneBlocks = size(groups);
 
-    println("MAXWINDOWSIZE <maxWindowSize>");
+    // SEQUENCE CLONE SEARCH
     for (int windowSize <- [2..maxWindowSize]) {
         int earlyExitOldClones = size(groups);
 
         groups = findClonesSequence(groups, sizeMap, asts, windowSize);
-
         <groups, earlyExitNewClones> = cleanGroups(groups, windowSize);
 
         if (earlyExitOldClones == earlyExitNewClones) {
@@ -47,10 +47,13 @@ CloneMap findClones(list[node] asts) {
             break;
         }
     }
+    int totalCloneBlocks = size(groups);
 
+    // RESULTS
+    println("--- Duplicate blocks found after basic: <basicCloneBlocks> ---");
+    println("--- Duplicate blocks found after sequence + basic: <totalCloneBlocks> ---");
     set[Location] lines = findAffectedLines(groups);
     println("Amount of duplicate lines: <size(lines)>");
-
     printCloneLocs(groups);
 
     return groups;
