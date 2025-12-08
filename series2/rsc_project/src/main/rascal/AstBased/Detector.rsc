@@ -10,16 +10,34 @@ import Set;
 import String;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
-import util::Progress;
 
 import AstBased::AstTools;
 import AstBased::CloneMapHelpers;
 import AstBased::Location;
+import AstBased::Normalise;
 
 // Arbitrary number
 int MASSTHRESHOLD = 50;
-
 int MIN_WINDOW_SIZE = 2;
+
+// Detects Type I clones
+CloneMap detectClonesI(list[node] asts){
+    return findClones(asts);
+}
+
+
+// Detects Type II clones
+CloneMap detectClonesII(list[node] asts) {
+    return findClones(normaliseAst(asts));
+}
+
+
+// Detects Type III clones
+CloneMap detectClonesIII(list[node] asts){
+    // TODO: implement
+    return ();
+}
+
 
 /**
  * Detects duplicated code fragments across the given ASTs by performing basic
@@ -36,7 +54,7 @@ CloneMap findClones(list[node] asts) {
     int basicCloneBlocks = size(groups);
 
     // SEQUENCE CLONE SEARCH
-    for (int windowSize <- [2..maxWindowSize]) {
+    for (int windowSize <- [MIN_WINDOW_SIZE..maxWindowSize]) {
         int earlyExitOldClones = size(groups);
 
         groups = findClonesSequence(groups, sizeMap, asts, windowSize);

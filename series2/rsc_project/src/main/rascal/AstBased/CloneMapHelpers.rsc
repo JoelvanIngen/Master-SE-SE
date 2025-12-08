@@ -83,8 +83,9 @@ CloneMap removeSubClones(CloneMap groups, int currWindowSize){
  * loss of partial clones
  */
 set[node] removeIfTrueParentClass(CloneMap groups, node cleanNode, node n){
-    set[node] nodesToRemove = {};
-    return n in groups && size(groups[cleanNode]) == size(groups[n]) ? {n} : nodesToRemove;
+    set[node] emptySet = {};
+    // TODO: what if size(groups[cleanNode]) < size(groups[n])...? Does it happen? Do we want to do anything about it?
+    return n in groups && size(groups[cleanNode]) == size(groups[n]) ? {n} : emptySet;
 }
 
 
