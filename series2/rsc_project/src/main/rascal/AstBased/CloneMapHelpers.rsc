@@ -59,11 +59,19 @@ CloneMap filterRealCloneGroups(CloneMap gs, int currWindowSize) {
     return (g: (gs[g]) | g <- gs, size(gs[g]) > 1 || sequenceLength(g) == currWindowSize);
 }
 
-int sequenceLength(node seq) {
-    switch (getChildren(seq)[0]) {
-        case list[node] ns: return size(ns);
-        default: return 1;
+/**
+ * Determines the length of the sequence of any custom-generated nodes.
+ * Returns 1 for any default AST nodes
+ */
+int sequenceLength(node n) {
+    if (isSequenceNode(n)) {
+        // Case for custom node
+        if (list[node] ns := getChildren(n)[0]) return size(ns);
+        throw "Error: Custom sequence parent node <n> did not seem to contain list[node] as type of first child";
     }
+
+    // Case for any AST node
+    return 1;
 }
 
 // Removes all subclone groups by checking all children
@@ -126,6 +134,8 @@ bool classIsSubsumed(CloneMap groups, node parent, node child) {
     }
     return true;
 }
+
+bool isSequenceNode(node n) = getName(n) in [confFullSequenceNodeName(), confPermutatedSequenceNodeName()];
 
 /**
  * Permutates a sliding window by creating new windows where one of the items
