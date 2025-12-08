@@ -1,5 +1,6 @@
 module AstBased::CloneMapHelpers
 
+import Configuration;
 import IO;
 import Location;
 import List;
@@ -41,7 +42,7 @@ CloneMap addNodeToCloneMap(CloneMap groups, node origNode) {
  */
 tuple[CloneMap, int] cleanGroups(CloneMap groups, int currWindowSize) {
     println("\nENTERING CLEANING: WINDOW SIZE <currWindowSize> | CLONE GROUPS: <size(groups)>");
-    groups = filterRealCloneGroups(groups);
+    groups = filterRealCloneGroups(groups, currWindowSize);
     int earlyExitCloneNumber = size(groups);
     println("AFTER \"REAL CLONES\" FILTER | CLONE GROUPS: <size(groups)>");
     groups = removeSubClones(groups, currWindowSize);
@@ -54,8 +55,15 @@ tuple[CloneMap, int] cleanGroups(CloneMap groups, int currWindowSize) {
  * Constructs a new clonegroup map, only keeping groups with more than 1
  * member, as a one-membered group will only contain an original.
  */
-CloneMap filterRealCloneGroups(CloneMap gs) {
-    return (g: (gs[g]) | g <- gs, size(gs[g]) > 1);
+CloneMap filterRealCloneGroups(CloneMap gs, int currWindowSize) {
+    return (g: (gs[g]) | g <- gs, size(gs[g]) > 1 || sequenceLength(g) == currWindowSize);
+}
+
+int sequenceLength(node seq) {
+    switch (getChildren(seq)[0]) {
+        case list[node] ns: return size(ns);
+        default: return 1;
+    }
 }
 
 // Removes all subclone groups by checking all children
@@ -85,9 +93,7 @@ CloneMap removeSubClones(CloneMap groups, int currWindowSize){
  * loss of partial clones
  */
 set[node] removeIfTrueParentClass(CloneMap groups, node cleanNode, node n){
-    set[node] emptySet = {};
-    // TODO: what if size(groups[cleanNode]) < size(groups[n])...? Does it happen? Do we want to do anything about it?
-    return n in groups && size(groups[cleanNode]) == size(groups[n]) ? {n} : emptySet;
+    return n in groups && size(groups[cleanNode]) == size(groups[n]) ? {n} : {};
 }
 
 // WIP, experimenting (if I decide to keep it -> remove removeIfTrueParentClass)
@@ -122,6 +128,17 @@ bool classIsSubsumed(CloneMap groups, node parent, node child) {
 }
 
 /**
+ * Permutates a sliding window by creating new windows where one of the items
+ * is removed each time
+ */
+list[node] permutateSlidingWindow(list[node] nodes) =
+    (
+        []
+        | it + "<confPermutatedSequenceNodeName()>"(remove(nodes, removeIndex))
+        | removeIndex <- [1 .. size(nodes) - 1]
+    );
+
+/** PERMUTATED VERSION
  * Generates all possible slices over a list of nodes with given length.
  * Creates a new 'ghost' parent node containing only the slice as children
  * @param nodes: list of all nodes to slice over
@@ -131,7 +148,20 @@ bool classIsSubsumed(CloneMap groups, node parent, node child) {
 list[node] generateSlidingWindows(list[node] nodes, int length) =
     (size(nodes) <= length || length <= 1) ? [] : (
         []
-        | it + "slice"(nodes[startIdx..startIdx+length])
+        | it + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length]) + permutateSlidingWindow(nodes[startIdx..startIdx+length])
         | startIdx <- [0..size(nodes)-length+1]
     );
 
+/**
+ * Generates all possible slices over a list of nodes with given length.
+ * Creates a new 'ghost' parent node containing only the slice as children
+ * @param nodes: list of all nodes to slice over
+ * @param length: length of slices to create
+ * @return: list of newly created 'ghost' parent nodes
+ */
+// list[node] generateSlidingWindows(list[node] nodes, int length) =
+//     (size(nodes) <= length || length <= 1) ? [] : (
+//         []
+//         | it + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
+//         | startIdx <- [0..size(nodes)-length+1]
+//     );

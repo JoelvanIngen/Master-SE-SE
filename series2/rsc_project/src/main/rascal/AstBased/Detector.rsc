@@ -60,7 +60,7 @@ CloneMap findClones(list[node] asts) {
         groups = findClonesSequence(groups, sizeMap, asts, windowSize);
         <groups, earlyExitNewClones> = cleanGroups(groups, windowSize);
 
-        if (earlyExitOldClones == earlyExitNewClones) {
+        if (earlyExitOldClones == earlyExitNewClones && windowSize > 6) {
             println("Terminating early; no new clones have been found and no existing groups were extended");
             break;
         }
@@ -114,6 +114,8 @@ CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, i
         case \block(list[Statement] statements):{
         // an alternative to previous approach, but removes some valid clones ...
             for (node window <- generateSlidingWindows(statements, sequenceLength)) {
+                // println(generateSlidingWindows(statements, sequenceLength));
+                // throw "Deliberate exit";
                 if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
                     groups = addNodeToCloneMap(groups, window);
                 }
