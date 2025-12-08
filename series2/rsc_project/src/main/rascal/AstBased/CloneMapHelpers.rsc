@@ -9,26 +9,27 @@ import Node;
 import AstBased::Location;
 
 // Storing clone groups
-alias CloneMap = map[node, list[node]];
+alias CloneLocs = list[loc];
+alias CloneMap = map[node, CloneLocs];
 
 CloneMap addNodeToCloneMap(CloneMap groups, node origNode) {
     // Remove location data (and hopefully not anything important)
     node cleanNode = unsetRec(origNode);
+    loc origSrc = getSrc(origNode);
 
     if (cleanNode notin groups) {
-        groups[cleanNode] = [origNode];
+        groups[cleanNode] = [origSrc];
         return groups;
     }
 
     // Add node to class iff it doesn't overlap with an existing clone in that class
     otherCloneCandidates = groups[cleanNode];
-    origSrc = getSrc(origNode);
-    for (cand <- otherCloneCandidates) {
-        if (isOverlapping(getSrc(cand), origSrc)){
+    for (candSrc <- otherCloneCandidates) {
+        if (isOverlapping(candSrc, origSrc)) {
             return groups;
         }
     }
-    groups[cleanNode] += [origNode];
+    groups[cleanNode] += [origSrc];
 
     return groups;
 }
