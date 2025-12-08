@@ -148,7 +148,9 @@ list[node] permutateSlidingWindow(list[node] nodes) =
 list[node] generateSlidingWindows(list[node] nodes, int length) =
     (size(nodes) <= length || length <= 1) ? [] : (
         []
-        | it + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length]) + permutateSlidingWindow(nodes[startIdx..startIdx+length])
+        | it
+            + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
+            + permutateSlidingWindow(nodes[startIdx..startIdx+length])
         | startIdx <- [0..size(nodes)-length+1]
     );
 
