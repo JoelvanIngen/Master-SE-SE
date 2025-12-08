@@ -74,22 +74,24 @@ int slidingWindowMass(SizeMap masses, node window) {
     return mass;
 }
 
+Location getStartingLine(loc src) = <src.path, src.begin.line>;
 
 /**
  * Extracts the starting line number as integer from a node
  * Node must have been checked for existence of src attribute
  * If it doesn't have an src attribute, function will error
  */
-Location extractStartingLine(node n) {
+Location getStartingLine(node n) {
     switch (n.src) {
-        case loc src: return <src.path, src.begin.line>;
+        case loc src: return getStartingLine(src);
+        default: throw "Node <n> does not have src field";
     }
-
-    fail;
 }
 
-
 set[Location] getStartingLines(node n) = getStartingLines([n]);
+
+set[Location] getStartingLines(list[loc] srcs) =
+    {getStartingLine(src) | src <- srcs};
 
 set[Location] getStartingLines(list[node] nodes) {
     set[Location] s = {};
@@ -97,7 +99,7 @@ set[Location] getStartingLines(list[node] nodes) {
     visit(nodes) {
         case node child: {
             if (child.src?) {
-                s += {extractStartingLine(child)};
+                s += {getStartingLine(child)};
             }
         }
     }

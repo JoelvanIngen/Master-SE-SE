@@ -10,6 +10,7 @@ import lang::java::m3::Core;
  * The target node must contain a src attribute
  */
 loc castLoc(node n) {
+    if (!n.src?) throw "Node <n> does not have a src field";
     switch (n.src) {
         case loc src: return src;
         default: throw "Node <n> has a src but it is not a loc type";
@@ -29,9 +30,8 @@ loc constructLocForWindow(node n) {
 
             return cover([firstLoc, lastLoc]);
         }
+        default: throw "First child of window parent node was not list of nodes";
     }
-
-    throw "First child of window parent node was not list of nodes";
 }
 
 /**
