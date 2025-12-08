@@ -64,12 +64,12 @@ CloneMap removeSubClones(CloneMap groups, int currWindowSize){
     for (cleanNode <- groups){
         visit (getChildren(cleanNode)) {
             case node n: {
-                nodesToRemove += removeIfTrueParentClass(groups, cleanNode, n);
+                nodesToRemove += removeIfSubsumed(groups, cleanNode, n);
             }
             case list[node] nodes: {
                 windowsToRemove = generateSlidingWindows(nodes, currWindowSize - 1);
                 for (n <- windowsToRemove) {
-                    nodesToRemove += removeIfTrueParentClass(groups, cleanNode, n);
+                    nodesToRemove += removeIfSubsumed(groups, cleanNode, n);
                 }
             }
         }
@@ -77,6 +77,7 @@ CloneMap removeSubClones(CloneMap groups, int currWindowSize){
     groups = (n: groups[n] | n <- groups, n notin nodesToRemove);
     return groups;
 }
+
 
 /**
  * Removes a child clone class from the groups if it's actually a child of the parent,
@@ -89,6 +90,36 @@ set[node] removeIfTrueParentClass(CloneMap groups, node cleanNode, node n){
     return n in groups && size(groups[cleanNode]) == size(groups[n]) ? {n} : emptySet;
 }
 
+// WIP, experimenting (if I decide to keep it -> remove removeIfTrueParentClass)
+set[node] removeIfSubsumed(CloneMap groups, node potentialParent, node potentialChild) {
+    return classIsSubsumed(groups, potentialParent, potentialChild) ? {potentialChild} : {};
+}
+
+
+// WIP, working on integrating it & improving
+bool classIsSubsumed(CloneMap groups, node parent, node child) {
+
+    // Check if both in groups
+    if (child notin groups || parent notin groups) return false;
+
+    // Check if groups have equal size
+    list[loc] parentLocs = groups[parent];
+    list[loc] childLocs  = groups[child];
+    if (size(parentLocs) != size(childLocs)) return false;
+
+    // for every child location, there must be a strictly containing parent location
+    for (loc c <- childLocs) {
+        bool covered = false;
+        for (loc p <- parentLocs) {
+            if (isContainedIn(c, p)) {
+                covered = true;
+                break;
+            }
+        }
+        if (!covered) return false;
+    }
+    return true;
+}
 
 /**
  * Generates all possible slices over a list of nodes with given length.
