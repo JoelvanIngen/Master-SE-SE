@@ -1,3 +1,24 @@
+--------------------------------------------------
+REPORT ON CLONE DETACTION RESULTS
+--------------------------------------------------
+Found 98 clones total
+
+Biggest clone has 29 lines
+  /src/smallsql/junit/TestOrderBy.java:698-726
+  /src/smallsql/junit/TestOrderBy.java:729-757
+
+Found 44 clone classes
+
+Biggest clone class has 5 members
+  /src/smallsql/junit/TestOrderBy.java:144-154
+  /src/smallsql/junit/TestOrderBy.java:171-181
+  /src/smallsql/junit/TestOrderBy.java:199-208
+  /src/smallsql/junit/TestOrderBy.java:227-236
+  /src/smallsql/junit/TestOrderBy.java:281-291
+
+--------------------------------------------------
+CLONE CLASSES:
+--------------------------------------------------
 Clone class 1 (size: 2)
   /src/smallsql/junit/TestOperatoren.java:209-227
   /src/smallsql/junit/TestOperatoren.java:230-248
