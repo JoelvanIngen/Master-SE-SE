@@ -15,6 +15,7 @@ import AstBased::AstTools;
 import AstBased::CloneMapHelpers;
 import AstBased::Location;
 import AstBased::Normalise;
+import AstBased::Output;
 
 // Arbitrary number
 int MASSTHRESHOLD = 50;
@@ -22,13 +23,17 @@ int MIN_WINDOW_SIZE = 2;
 
 // Detects Type I clones
 CloneMap detectClonesI(list[node] asts){
-    return findClones(asts);
+    clones = findClones(asts);
+    writeCloneClasses(clones);
+    return clones;
 }
 
 
 // Detects Type II clones
 CloneMap detectClonesII(list[node] asts) {
-    return findClones(normaliseAst(asts));
+    clones = findClones(normaliseAst(asts));
+    writeCloneClasses(clones);
+    return clones;
 }
 
 

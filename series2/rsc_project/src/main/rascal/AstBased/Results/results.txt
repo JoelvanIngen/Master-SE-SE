@@ -1,0 +1,186 @@
+Clone class 1 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:209-227
+  /src/smallsql/junit/TestOperatoren.java:230-248
+
+Clone class 2 (size: 2)
+  /src/smallsql/database/Utils.java:205-212
+  /src/smallsql/junit/BasicTestCase.java:102-109
+
+Clone class 3 (size: 2)
+  /src/smallsql/database/DateTime.java:475-486
+  /src/smallsql/database/DateTime.java:601-612
+
+Clone class 4 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:158-164
+  /src/smallsql/junit/TestOperatoren.java:165-171
+
+Clone class 5 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:157-162
+  /src/smallsql/junit/TestOperatoren.java:164-169
+
+Clone class 6 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:177-184
+  /src/smallsql/junit/TestOperatoren.java:193-200
+
+Clone class 7 (size: 2)
+  /src/smallsql/database/LongTreeList.java:331-341
+  /src/smallsql/database/LongTreeList.java:376-386
+
+Clone class 8 (size: 2)
+  /src/smallsql/junit/TestOrderBy.java:698-726
+  /src/smallsql/junit/TestOrderBy.java:729-757
+
+Clone class 9 (size: 3)
+  /src/smallsql/junit/TestOperatoren.java:215-223
+  /src/smallsql/junit/TestOperatoren.java:224-232
+  /src/smallsql/junit/TestOperatoren.java:236-244
+
+Clone class 10 (size: 2)
+  /src/smallsql/junit/BenchTest.java:618-625
+  /src/smallsql/junit/BenchTest.java:655-662
+
+Clone class 11 (size: 2)
+  /src/smallsql/database/ExpressionFunctionTruncate.java:46-60
+  /src/smallsql/database/ExpressionFunctionRound.java:46-60
+
+Clone class 12 (size: 2)
+  /src/smallsql/junit/TestTransactions.java:262-274
+  /src/smallsql/junit/TestTransactions.java:305-317
+
+Clone class 13 (size: 2)
+  /src/smallsql/database/DateTime.java:351-359
+  /src/smallsql/database/DateTime.java:472-480
+
+Clone class 14 (size: 2)
+  /src/smallsql/database/DateTime.java:532-540
+  /src/smallsql/database/DateTime.java:619-627
+
+Clone class 15 (size: 3)
+  /src/smallsql/database/DateTime.java:533-540
+  /src/smallsql/database/DateTime.java:543-550
+  /src/smallsql/database/DateTime.java:620-627
+
+Clone class 16 (size: 2)
+  /src/smallsql/database/DateTime.java:573-580
+  /src/smallsql/database/DateTime.java:589-596
+
+Clone class 17 (size: 2)
+  /src/smallsql/junit/BenchTest.java:415-432
+  /src/smallsql/junit/BenchTest.java:469-486
+
+Clone class 18 (size: 3)
+  /src/smallsql/junit/BenchTest.java:422-432
+  /src/smallsql/junit/BenchTest.java:476-486
+  /src/smallsql/junit/BenchTest.java:530-540
+
+Clone class 19 (size: 2)
+  /src/smallsql/junit/TestAlterTable2.java:42-48
+  /src/smallsql/junit/TestAlterTable2.java:72-78
+
+Clone class 20 (size: 2)
+  /src/smallsql/database/DateTime.java:553-563
+  /src/smallsql/database/DateTime.java:567-577
+
+Clone class 21 (size: 2)
+  /src/smallsql/junit/TestOrderBy.java:329-352
+  /src/smallsql/junit/TestOrderBy.java:414-437
+
+Clone class 22 (size: 3)
+  /src/smallsql/junit/TestOrderBy.java:330-340
+  /src/smallsql/junit/TestOrderBy.java:415-425
+  /src/smallsql/junit/TestOrderBy.java:441-450
+
+Clone class 23 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:159-165
+  /src/smallsql/junit/TestOperatoren.java:166-172
+
+Clone class 24 (size: 2)
+  /src/smallsql/database/ExpressionArithmetic.java:265-281
+  /src/smallsql/database/ExpressionArithmetic.java:312-328
+
+Clone class 25 (size: 2)
+  /src/smallsql/database/StoreImpl.java:684-707
+  /src/smallsql/database/StoreImpl.java:1479-1502
+
+Clone class 26 (size: 3)
+  /src/smallsql/junit/TestOrderBy.java:199-210
+  /src/smallsql/junit/TestOrderBy.java:227-238
+  /src/smallsql/junit/TestOrderBy.java:281-293
+
+Clone class 27 (size: 2)
+  /src/smallsql/junit/BenchTest.java:422-433
+  /src/smallsql/junit/BenchTest.java:530-541
+
+Clone class 28 (size: 2)
+  /src/smallsql/junit/TestOrderBy.java:198-223
+  /src/smallsql/junit/TestOrderBy.java:226-251
+
+Clone class 29 (size: 2)
+  /src/smallsql/database/Table.java:370-379
+  /src/smallsql/database/Table.java:388-397
+
+Clone class 30 (size: 2)
+  /src/smallsql/junit/BenchTest.java:203-220
+  /src/smallsql/junit/BenchTest.java:317-334
+
+Clone class 31 (size: 2)
+  /src/smallsql/junit/TestResultSet.java:85-107
+  /src/smallsql/junit/TestResultSet.java:128-150
+
+Clone class 32 (size: 3)
+  /src/smallsql/junit/TestOperatoren.java:216-224
+  /src/smallsql/junit/TestOperatoren.java:225-233
+  /src/smallsql/junit/TestOperatoren.java:237-245
+
+Clone class 33 (size: 2)
+  /src/smallsql/database/IndexScrollStatus.java:89-99
+  /src/smallsql/database/IndexScrollStatus.java:120-131
+
+Clone class 34 (size: 5)
+  /src/smallsql/junit/TestOrderBy.java:144-154
+  /src/smallsql/junit/TestOrderBy.java:171-181
+  /src/smallsql/junit/TestOrderBy.java:199-208
+  /src/smallsql/junit/TestOrderBy.java:227-236
+  /src/smallsql/junit/TestOrderBy.java:281-291
+
+Clone class 35 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:116-141
+  /src/smallsql/junit/TestJoins.java:130-155
+
+Clone class 36 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:115-140
+  /src/smallsql/junit/TestJoins.java:129-154
+
+Clone class 37 (size: 2)
+  /src/smallsql/database/ExpressionArithmetic.java:478-506
+  /src/smallsql/database/ExpressionFunctionReturnP1.java:52-80
+
+Clone class 38 (size: 3)
+  /src/smallsql/junit/TestOperatoren.java:217-225
+  /src/smallsql/junit/TestOperatoren.java:226-234
+  /src/smallsql/junit/TestOperatoren.java:238-246
+
+Clone class 39 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:169-177
+  /src/smallsql/junit/TestOperatoren.java:186-194
+
+Clone class 40 (size: 2)
+  /src/smallsql/junit/TestOrderBy.java:144-159
+  /src/smallsql/junit/TestOrderBy.java:171-186
+
+Clone class 41 (size: 2)
+  /src/smallsql/database/StoreImpl.java:1304-1316
+  /src/smallsql/database/StoreImpl.java:1371-1383
+
+Clone class 42 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:155-161
+  /src/smallsql/junit/TestOperatoren.java:162-168
+
+Clone class 43 (size: 2)
+  /src/smallsql/junit/TestMoneyRounding.java:64-73
+  /src/smallsql/junit/TestMoneyRounding.java:101-110
+
+Clone class 44 (size: 2)
+  /src/smallsql/junit/TestOperatoren.java:172-183
+  /src/smallsql/junit/TestOperatoren.java:194-205
+
