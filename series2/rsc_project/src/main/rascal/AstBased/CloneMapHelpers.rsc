@@ -168,25 +168,25 @@ list[node] permutateSlidingWindow(list[node] nodes) =
  * @param length: length of slices to create
  * @return: list of newly created 'ghost' parent nodes
  */
-list[node] generateSlidingWindows(list[node] nodes, int length) =
-    (size(nodes) <= length || length <= 1) ? [] : (
-        []
-        | it
-            + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
-            + permutateSlidingWindow(nodes[startIdx..startIdx+length])
-        | startIdx <- [0..size(nodes)-length+1]
-    );
+// list[node] generateSlidingWindows(list[node] nodes, int length) =
+//     (size(nodes) <= length || length <= 1) ? [] : (
+//         []
+//         | it
+//             + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
+//             + permutateSlidingWindow(nodes[startIdx..startIdx+length])
+//         | startIdx <- [0..size(nodes)-length+1]
+//     );
 
-/**
+/** ORIGINAL VERSION
  * Generates all possible slices over a list of nodes with given length.
  * Creates a new 'ghost' parent node containing only the slice as children
  * @param nodes: list of all nodes to slice over
  * @param length: length of slices to create
  * @return: list of newly created 'ghost' parent nodes
  */
-// list[node] generateSlidingWindows(list[node] nodes, int length) =
-//     (size(nodes) <= length || length <= 1) ? [] : (
-//         []
-//         | it + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
-//         | startIdx <- [0..size(nodes)-length+1]
-//     );
+list[node] generateSlidingWindows(list[node] nodes, int length) =
+    (size(nodes) <= length || length <= 1) ? [] : (
+        []
+        | it + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
+        | startIdx <- [0..size(nodes)-length+1]
+    );
