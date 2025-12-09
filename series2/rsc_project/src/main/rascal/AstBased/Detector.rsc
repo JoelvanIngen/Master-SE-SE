@@ -55,7 +55,7 @@ CloneMap findClones(list[node] asts) {
     int basicCloneBlocks = size(groups);
 
     // SEQUENCE CLONE SEARCH
-    for (int windowSize <- [MIN_WINDOW_SIZE..maxWindowSize]) {
+    for (int windowSize <- [MIN_WINDOW_SIZE..50]) {
         int earlyExitOldClones = size(groups);
 
         groups = findClonesSequence(groups, sizeMap, asts, windowSize);
@@ -113,19 +113,11 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
 CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength) {
     visit (asts) {
         // case list[node] statements: {
-        case \block(list[Statement] statements):{
+        case list[Statement] statements: {
         // an alternative to previous approach, but removes some valid clones ...
             for (node window <- generateSlidingWindows(statements, sequenceLength)) {
                 // println(generateSlidingWindows(statements, sequenceLength));
                 // throw "Deliberate exit";
-                if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
-                    groups = addNodeToCloneMap(groups, window);
-                }
-            }
-        }
-        case \switch(_, list[Statement] statements):{
-        // COPY PASTED FROM BLOCK ABOVE
-            for (node window <- generateSlidingWindows(statements, sequenceLength)) {
                 if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
                     groups = addNodeToCloneMap(groups, window);
                 }
