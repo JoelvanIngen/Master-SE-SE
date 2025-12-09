@@ -6,6 +6,8 @@ import Location;
 import List;
 import Map;
 import Node;
+import lang::java::m3::AST;
+import lang::java::m3::Core;
 
 import AstBased::Location;
 
@@ -82,7 +84,7 @@ CloneMap removeSubClones(CloneMap groups, int currWindowSize){
             case node n: {
                 nodesToRemove += removeIfSubsumed(groups, cleanNode, n);
             }
-            case list[node] nodes: {
+            case list[Statement] nodes: {
                 windowsToRemove = generateSlidingWindows(nodes, currWindowSize - 1);
                 for (n <- windowsToRemove) {
                     nodesToRemove += removeIfSubsumed(groups, cleanNode, n);
@@ -122,6 +124,7 @@ bool classIsSubsumed(CloneMap groups, node parent, node child) {
     if (size(parentLocs) != size(childLocs)) return false;
 
     // for every child location, there must be a strictly containing parent location
+    // Potential improvement: sort both lists and then search linearly until either both lists reach end or either comparison fails?
     for (loc c <- childLocs) {
         bool covered = false;
         for (loc p <- parentLocs) {
@@ -135,7 +138,17 @@ bool classIsSubsumed(CloneMap groups, node parent, node child) {
     return true;
 }
 
-bool isSequenceNode(node n) = getName(n) in [confFullSequenceNodeName(), confPermutatedSequenceNodeName()];
+bool isSequenceNode(node n) = isFullSequence(n) || isPermutationSequence(n);
+bool isFullSequence(node n) = getName(n) == confFullSequenceNodeName();
+bool isPermutationSequence(node n) = getName(n) == confPermutatedSequenceNodeName();
+
+/**
+ * Checks whether the second argument is a permutated version of the first argument.
+ * Ensures first argument is a full sequence and second argument is permutation
+ * Then checks whether the two sequences span the same location
+ */
+bool isPermutationOfSequence(node seq, node perm) =
+    isFullSequence(seq) && isPermutationSequence(perm) && getSrc(seq) == getSrc(perm);
 
 /**
  * Permutates a sliding window by creating new windows where one of the items
