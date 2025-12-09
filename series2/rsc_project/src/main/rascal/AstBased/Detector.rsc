@@ -55,7 +55,7 @@ CloneMap findClones(list[node] asts) {
     int basicCloneBlocks = size(groups);
 
     // SEQUENCE CLONE SEARCH
-    for (int windowSize <- [MIN_WINDOW_SIZE..50]) {
+    for (int windowSize <- [MIN_WINDOW_SIZE..maxWindowSize]) {
         int earlyExitOldClones = size(groups);
 
         groups = findClonesSequence(groups, sizeMap, asts, windowSize);
