@@ -1,6 +1,7 @@
 module AstBased::Detector
 
 import Aliases;
+import Configuration;
 import IO;
 import List;
 import Location;
@@ -60,7 +61,8 @@ CloneMap findClones(list[node] asts) {
         groups = findClonesSequence(groups, sizeMap, asts, windowSize);
         <groups, earlyExitNewClones> = cleanGroups(groups, windowSize);
 
-        if (earlyExitOldClones == earlyExitNewClones && windowSize > 6) {
+        if (earlyExitOldClones == earlyExitNewClones
+                && windowSize >= confMinimumSequenceLengthIterationsBeforeStop()) {
             println("Terminating early; no new clones have been found and no existing groups were extended");
             break;
         }
