@@ -30,14 +30,17 @@ CloneMap removeOverlaps(CloneMap groups){
     return (g : groups[g] | g <- groups, g notin toRemove);
 }
 
-bool findIfIncluded(list[loc] members1, list[loc] members2){
+bool findIfIncluded(list[loc] parent, list[loc] child){
+  if (size(child) != size(parent)) return false;
 
-    if (size(members1) != size(members2)) return false;
-
-    list[tuple[loc, loc]] pairs = [];
-    pairs = [<m, n> | m <- members1, n <- members2, isContainedIn(n, m)];
-
-    return size(pairs) == size(members1);
+  for (loc c <- child) {
+    bool ok = false;
+    for (loc p <- parent) {
+      if (isContainedIn(c, p)) { ok = true; break; }
+    }
+    if (!ok) return false;
+  }
+  return true;
 }
 
 // Assumes all members in a class have the same line length
@@ -54,6 +57,8 @@ map[int, list[node]] sizeCloneMap(CloneMap groups){
 
     for (node g <- groups) {
         int groupSize = size(groups[g]);
+        // To make it fast, exclude size 1;
+        if (groupSize <= 1) continue;
         sizeMap[groupSize] = (groupSize in sizeMap) ? sizeMap[groupSize] + [g] : [g];
   }
 
