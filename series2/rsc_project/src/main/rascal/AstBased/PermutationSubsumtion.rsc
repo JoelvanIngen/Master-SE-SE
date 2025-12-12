@@ -7,10 +7,11 @@ import Node;
 alias CloneLocs = list[loc];
 alias CloneMap = map[node, CloneLocs];
 
-int cloneLines(loc l) {
-    return l.end.line - l.begin.line + 1;
-}
-
+/**
+ * Removes classes, which fully overlap from the CloneMap
+ * by fully overlap we mean all members of the child class are contained
+ * inside of the members (locations) of the parent class
+ */
 CloneMap removeOverlaps(CloneMap groups){
 
     map[int, list[node]] sizeMap = sizeCloneMap(groups);
@@ -30,6 +31,10 @@ CloneMap removeOverlaps(CloneMap groups){
     return (g : groups[g] | g <- groups, g notin toRemove);
 }
 
+
+/**
+ * Checks if child location is include in parent location
+ */
 bool findIfIncluded(list[loc] parent, list[loc] child){
   if (size(child) != size(parent)) return false;
 
@@ -41,11 +46,6 @@ bool findIfIncluded(list[loc] parent, list[loc] child){
     if (!ok) return false;
   }
   return true;
-}
-
-// Assumes all members in a class have the same line length
-int classCloneLines(list[loc] members) {
-    return isEmpty(members) ? 0 : cloneLines(members[0]);
 }
 
 /**
