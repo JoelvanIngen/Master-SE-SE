@@ -1,12 +1,10 @@
 module AstBased::Output
 
+import Aliases;
 import IO;
 import Location;
 import Map;
 import List;
-
-alias CloneLocs = list[loc];
-alias CloneMap  = map[node, CloneLocs];
 
 // Writes clone statistics + clone classes to a text file.
 void writeCloneClasses(CloneMap groups, loc outFile = |project://rsc_project/src/main/rascal/AstBased/Results/results.txt|) {

@@ -16,3 +16,7 @@ alias Location = tuple[str, int];
 // Represents all file lines that have been encountered before
 // and the location on which the section starts
 alias HistoryMap = map[str, list[Location]];
+
+// Storing clone groups
+alias CloneLocs = list[loc];
+alias CloneMap = map[node, CloneLocs];

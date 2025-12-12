@@ -1,5 +1,6 @@
 module AstBased::CloneMapHelpers
 
+import Aliases;
 import Configuration;
 import IO;
 import Location;
@@ -11,10 +12,7 @@ import lang::java::m3::Core;
 
 import AstBased::Location;
 import AstBased::PermutationSubsumtion;
-
-// Storing clone groups
-alias CloneLocs = list[loc];
-alias CloneMap = map[node, CloneLocs];
+import AstBased::SequenceHelpers;
 
 CloneMap addNodeToCloneMap(CloneMap groups, node origNode) {
     // Remove location data (and hopefully not anything important)
@@ -130,18 +128,6 @@ bool classIsSubsumed(CloneMap groups, node parent, node child) {
     }
     return true;
 }
-
-bool isSequenceNode(node n) = isFullSequence(n) || isPermutationSequence(n);
-bool isFullSequence(node n) = getName(n) == confFullSequenceNodeName();
-bool isPermutationSequence(node n) = getName(n) == confPermutatedSequenceNodeName();
-
-/**
- * Checks whether the second argument is a permutated version of the first argument.
- * Ensures first argument is a full sequence and second argument is permutation
- * Then checks whether the two sequences span the same location
- */
-bool isPermutationOfSequence(node seq, node perm) =
-    isFullSequence(seq) && isPermutationSequence(perm) && getSrc(seq) == getSrc(perm);
 
 /**
  * Permutates a sliding window by creating new windows where one of the items

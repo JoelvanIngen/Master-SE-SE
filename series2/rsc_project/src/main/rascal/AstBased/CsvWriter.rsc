@@ -1,11 +1,9 @@
 module AstBased::CsvWriter
 
+import Aliases;
 import IO;
 import List;
 import String;
-
-alias CloneLocs = list[loc];
-alias CloneMap  = map[node, CloneLocs];
 
 loc RESULTSFILE = |project://rsc_project/src/main/rascal/AstBased/Results/results.csv|;
 
