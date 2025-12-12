@@ -10,6 +10,7 @@ import lang::java::m3::AST;
 import lang::java::m3::Core;
 
 import AstBased::Location;
+import AstBased::PermutationSubsumtion;
 
 // Storing clone groups
 alias CloneLocs = list[loc];
@@ -49,6 +50,8 @@ tuple[CloneMap, int] cleanGroups(CloneMap groups, int currWindowSize) {
     println("AFTER \"REAL CLONES\" FILTER | CLONE GROUPS: <size(groups)>");
     groups = removeSubClones(groups, currWindowSize);
     println("AFTER REMOVING SUBCLONES | CLONE GROUPS: <size(groups)>");
+    groups = removeOverlaps(groups);
+    println("AFTER REMOVING OVERLAP | CLONE GROUPS: <size(groups)>");
 
     return <groups, earlyExitCloneNumber>;
 }
@@ -78,32 +81,22 @@ int sequenceLength(node n) {
 
 // Removes all subclone groups by checking all children
 CloneMap removeSubClones(CloneMap groups, int currWindowSize){
-    set[node] nodesToRemove = {};
-    for (cleanNode <- groups){
-        visit (getChildren(cleanNode)) {
-            case node n: {
-                nodesToRemove += removeIfSubsumed(groups, cleanNode, n);
+    set[node] groupsToRemove = {};
+    for (parent <- groups){
+        visit (getChildren(parent)) {
+            case node child: {
+                groupsToRemove += removeIfSubsumed(groups, parent, child);
             }
-            case list[Statement] nodes: {
-                windowsToRemove = generateSlidingWindows(nodes, currWindowSize - 1);
-                for (n <- windowsToRemove) {
-                    nodesToRemove += removeIfSubsumed(groups, cleanNode, n);
+            case list[Statement] statements: {
+                windowsToRemove = generateSlidingWindows(statements, currWindowSize - 1);
+                for (child <- windowsToRemove) {
+                    groupsToRemove += removeIfSubsumed(groups, parent, child);
                 }
             }
         }
     }
-    groups = (n: groups[n] | n <- groups, n notin nodesToRemove);
+    groups = (n: groups[n] | n <- groups, n notin groupsToRemove);
     return groups;
-}
-
-
-/**
- * Removes a child clone class from the groups if it's actually a child of the parent,
- * but keeps it in case one of the targeted code segments is not extended, to prevent
- * loss of partial clones
- */
-set[node] removeIfTrueParentClass(CloneMap groups, node cleanNode, node n){
-    return n in groups && size(groups[cleanNode]) == size(groups[n]) ? {n} : {};
 }
 
 // WIP, experimenting (if I decide to keep it -> remove removeIfTrueParentClass)
@@ -168,14 +161,14 @@ list[node] permutateSlidingWindow(list[node] nodes) =
  * @param length: length of slices to create
  * @return: list of newly created 'ghost' parent nodes
  */
-// list[node] generateSlidingWindows(list[node] nodes, int length) =
-//     (size(nodes) <= length || length <= 1) ? [] : (
-//         []
-//         | it
-//             + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
-//             + permutateSlidingWindow(nodes[startIdx..startIdx+length])
-//         | startIdx <- [0..size(nodes)-length+1]
-//     );
+list[node] generateSlidingWindows(list[node] nodes, int length) =
+    (size(nodes) <= length || length <= 1) ? [] : (
+        []
+        | it
+            + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
+            + permutateSlidingWindow(nodes[startIdx..startIdx+length])
+        | startIdx <- [0..size(nodes)-length+1]
+    );
 
 /** ORIGINAL VERSION
  * Generates all possible slices over a list of nodes with given length.
@@ -184,9 +177,9 @@ list[node] permutateSlidingWindow(list[node] nodes) =
  * @param length: length of slices to create
  * @return: list of newly created 'ghost' parent nodes
  */
-list[node] generateSlidingWindows(list[node] nodes, int length) =
-    (size(nodes) <= length || length <= 1) ? [] : (
-        []
-        | it + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
-        | startIdx <- [0..size(nodes)-length+1]
-    );
+// list[node] generateSlidingWindows(list[node] nodes, int length) =
+//     (size(nodes) <= length || length <= 1) ? [] : (
+//         []
+//         | it + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
+//         | startIdx <- [0..size(nodes)-length+1]
+//     );

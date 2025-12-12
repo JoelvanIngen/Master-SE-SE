@@ -29,6 +29,7 @@ void testCloneAmount() {
 
 void main() {
     asts = getASTs(|project://smallsql0.21_src/|);
-    testCloneAmount();
-    // println(asts);
+    // Get total # of (cleaned) lines
+    fileLocs = genFileList(asts);
+    cleanedLines = [cleanLines(l) | l <- fileLocs];
 }

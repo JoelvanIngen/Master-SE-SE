@@ -16,6 +16,7 @@ import AstBased::AstTools;
 import AstBased::CloneMapHelpers;
 import AstBased::Location;
 import AstBased::Normalise;
+import AstBased::PermutationSubsumtion;
 
 // Arbitrary number
 int MASSTHRESHOLD = 50;
