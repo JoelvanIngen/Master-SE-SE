@@ -14,6 +14,13 @@ list[Declaration] getASTs(loc projectLocation) {
     return asts;
 }
 
+list[Declaration] getASTsFromDirectory(loc projectLocation) {
+    M3 model = createM3FromDirectory(projectLocation);
+    list[Declaration] asts = [createAstFromFile(f, true)
+        | f <- files(model.containment), isCompilationUnit(f)];
+    return asts;
+}
+
 void printCloneAmount(list[Declaration] asts) {
     fileLocs = genFileList(asts);
     cleanedLines = [cleanLines(l) | l <- fileLocs];
