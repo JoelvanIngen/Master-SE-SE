@@ -1,6 +1,7 @@
 module AstBased::Detector
 
 import Aliases;
+import Configuration;
 import IO;
 import List;
 import Location;
@@ -16,6 +17,7 @@ import AstBased::CloneMapHelpers;
 import AstBased::Location;
 import AstBased::Normalise;
 import AstBased::Output;
+import AstBased::PermutationSubsumtion;
 
 // Arbitrary number
 int MASSTHRESHOLD = 50;
@@ -65,7 +67,8 @@ CloneMap findClones(list[node] asts) {
         groups = findClonesSequence(groups, sizeMap, asts, windowSize);
         <groups, earlyExitNewClones> = cleanGroups(groups, windowSize);
 
-        if (earlyExitOldClones == earlyExitNewClones) {
+        if (earlyExitOldClones == earlyExitNewClones
+                && windowSize >= confMinimumSequenceLengthIterationsBeforeStop()) {
             println("Terminating early; no new clones have been found and no existing groups were extended");
             break;
         }
@@ -116,17 +119,11 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
 CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength) {
     visit (asts) {
         // case list[node] statements: {
-        case \block(list[Statement] statements):{
+        case list[Statement] statements: {
         // an alternative to previous approach, but removes some valid clones ...
             for (node window <- generateSlidingWindows(statements, sequenceLength)) {
-                if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
-                    groups = addNodeToCloneMap(groups, window);
-                }
-            }
-        }
-        case \switch(_, list[Statement] statements):{
-        // COPY PASTED FROM BLOCK ABOVE
-            for (node window <- generateSlidingWindows(statements, sequenceLength)) {
+                // println(generateSlidingWindows(statements, sequenceLength));
+                // throw "Deliberate exit";
                 if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
                     groups = addNodeToCloneMap(groups, window);
                 }
