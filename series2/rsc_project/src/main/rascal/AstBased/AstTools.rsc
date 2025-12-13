@@ -42,20 +42,10 @@ SizeMap constructSizeMap(list[node] nodes) {
 
     // This works because visits are breadth-first bottom-up by default
     visit (nodes) {
-        case node subtree: m[subtree] = constructSize(m, subtree);
+        case node subtree: m[subtree] = constructSizeFromChildren(m, subtree);
     }
 
     return m;
-}
-
-
-/**
- * Computes the size of a single AST node, including its children.
- */
-int constructSize(SizeMap m, node n) {
-    return arity(n) == 0
-        ? 1
-        : constructSizeFromChildren(m, n);
 }
 
 
