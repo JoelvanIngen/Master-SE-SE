@@ -14,6 +14,7 @@ import lang::java::m3::Core;
 
 import AstBased::AstTools;
 import AstBased::CloneMapHelpers;
+import AstBased::CsvWriter;
 import AstBased::Location;
 import AstBased::Normalise;
 import AstBased::Output;
@@ -25,7 +26,7 @@ int MIN_WINDOW_SIZE = 2;
 
 // Detects Type I clones
 CloneMap detectClonesI(list[node] asts){
-    clones = findClones(asts);
+    clones = findClones(asts, generateSlidingWindows);
     writeCloneClasses(clones);
     return clones;
 }
@@ -33,16 +34,17 @@ CloneMap detectClonesI(list[node] asts){
 
 // Detects Type II clones
 CloneMap detectClonesII(list[node] asts) {
-    clones = findClones(normaliseAst(asts));
+    clones = findClones(normaliseAst(asts), generateSlidingWindows);
     writeCloneClasses(clones);
     return clones;
 }
 
 
 // Detects Type III clones
-CloneMap detectClonesIII(list[node] asts){
-    // TODO: implement
-    return ();
+CloneMap detectClonesIII(list[node] asts) {
+    clones = findClones(normaliseAst(asts), generateSlidingWindowsWithPerm);
+    writeCloneClasses(clones);
+    return clones;
 }
 
 
@@ -51,21 +53,21 @@ CloneMap detectClonesIII(list[node] asts){
  * and sequence-based clone detection then cleaning intermediate results, and
  * returning the final CloneMap containing all discovered clone groups.
  */
-CloneMap findClones(list[node] asts) {
+CloneMap findClones(list[node] asts, list[node](list[node], int) sequenceGenerator) {
     CloneMap groups = ();
     map[node, int] sizeMap = constructSizeMap(asts);
 
     // BASIC CLONE SEARCH
     <groups, maxWindowSize> = findClonesBasic(groups, sizeMap, asts);
-    <groups, _> = cleanGroups(groups, 1);
+    <groups, _> = cleanGroups(groups, 1, sequenceGenerator);
     int basicCloneBlocks = size(groups);
 
     // SEQUENCE CLONE SEARCH
     for (int windowSize <- [MIN_WINDOW_SIZE..maxWindowSize]) {
         int earlyExitOldClones = size(groups);
 
-        groups = findClonesSequence(groups, sizeMap, asts, windowSize);
-        <groups, earlyExitNewClones> = cleanGroups(groups, windowSize);
+        groups = findClonesSequence(groups, sizeMap, asts, windowSize, sequenceGenerator);
+        <groups, earlyExitNewClones> = cleanGroups(groups, windowSize, sequenceGenerator);
 
         if (earlyExitOldClones == earlyExitNewClones
                 && windowSize >= confMinimumSequenceLengthIterationsBeforeStop()) {
@@ -116,14 +118,12 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
  * Adds windows above threshold to clone map
  * return: updated CloneMap
  */
-CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength) {
+CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength,
+                             list[node](list[node], int) sequenceGenerator) {
+
     visit (asts) {
-        // case list[node] statements: {
         case list[Statement] statements: {
-        // an alternative to previous approach, but removes some valid clones ...
-            for (node window <- generateSlidingWindows(statements, sequenceLength)) {
-                // println(generateSlidingWindows(statements, sequenceLength));
-                // throw "Deliberate exit";
+            for (node window <- sequenceGenerator(statements, sequenceLength)) {
                 if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
                     groups = addNodeToCloneMap(groups, window);
                 }
