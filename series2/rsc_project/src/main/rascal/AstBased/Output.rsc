@@ -15,7 +15,10 @@ void writeCloneClasses(CloneMap groups, loc outFile = |project://rsc_project/src
     tuple[int, list[loc]] biggestClass = <0, [|unknown:///|]>;
 
     // Making sure the output file exists
-    if (!exists(outFile)) throw "Output file does not exist at <outFile>";
+    if (!exists(outFile)) {
+        mkDirectory(outFile.parent);
+        touch(outFile);
+    }
 
     int classId = 1;
     for (node key <- groups) {
