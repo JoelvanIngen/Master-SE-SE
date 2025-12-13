@@ -41,12 +41,14 @@ CloneMap addNodeToCloneMap(CloneMap groups, node origNode) {
  * Returns the cleaned groups, and the amount of groups after non-clone group
  * filtering, allowing for early exit if no new detections will take place
  */
-tuple[CloneMap, int] cleanGroups(CloneMap groups, int currWindowSize) {
+tuple[CloneMap, int] cleanGroups(CloneMap groups, int currWindowSize,
+                                 list[node](list[node], int) sequenceGenerator) {
+
     println("\nENTERING CLEANING: WINDOW SIZE <currWindowSize> | CLONE GROUPS: <size(groups)>");
     groups = filterRealCloneGroups(groups, currWindowSize);
     int earlyExitCloneNumber = size(groups);
     println("AFTER \"REAL CLONES\" FILTER | CLONE GROUPS: <size(groups)>");
-    groups = removeSubClones(groups, currWindowSize);
+    groups = removeSubClones(groups, currWindowSize, sequenceGenerator);
     println("AFTER REMOVING SUBCLONES | CLONE GROUPS: <size(groups)>");
     groups = removeOverlaps(groups);
     println("AFTER REMOVING OVERLAP | CLONE GROUPS: <size(groups)>");
@@ -78,7 +80,9 @@ int sequenceLength(node n) {
 }
 
 // Removes all subclone groups by checking all children
-CloneMap removeSubClones(CloneMap groups, int currWindowSize){
+CloneMap removeSubClones(CloneMap groups, int currWindowSize,
+                         list[node](list[node], int) sequenceGenerator){
+
     set[node] groupsToRemove = {};
     for (parent <- groups){
         visit (getChildren(parent)) {
@@ -86,7 +90,7 @@ CloneMap removeSubClones(CloneMap groups, int currWindowSize){
                 groupsToRemove += removeIfSubsumed(groups, parent, child);
             }
             case list[Statement] statements: {
-                windowsToRemove = generateSlidingWindows(statements, currWindowSize - 1);
+                windowsToRemove = sequenceGenerator(statements, currWindowSize - 1);
                 for (child <- windowsToRemove) {
                     groupsToRemove += removeIfSubsumed(groups, parent, child);
                 }
@@ -147,7 +151,7 @@ list[node] permutateSlidingWindow(list[node] nodes) =
  * @param length: length of slices to create
  * @return: list of newly created 'ghost' parent nodes
  */
-list[node] generateSlidingWindows(list[node] nodes, int length) =
+list[node] generateSlidingWindowsWithPerm(list[node] nodes, int length) =
     (size(nodes) <= length || length <= 1) ? [] : (
         []
         | it
@@ -163,9 +167,9 @@ list[node] generateSlidingWindows(list[node] nodes, int length) =
  * @param length: length of slices to create
  * @return: list of newly created 'ghost' parent nodes
  */
-// list[node] generateSlidingWindows(list[node] nodes, int length) =
-//     (size(nodes) <= length || length <= 1) ? [] : (
-//         []
-//         | it + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
-//         | startIdx <- [0..size(nodes)-length+1]
-//     );
+list[node] generateSlidingWindows(list[node] nodes, int length) =
+    (size(nodes) <= length || length <= 1) ? [] : (
+        []
+        | it + "<confFullSequenceNodeName>"(nodes[startIdx..startIdx+length])
+        | startIdx <- [0..size(nodes)-length+1]
+    );
