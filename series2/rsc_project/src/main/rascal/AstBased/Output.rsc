@@ -1,13 +1,18 @@
 module AstBased::Output
 
-import Aliases;
 import IO;
-import Location;
 import Map;
 import List;
+import Location;
+import Set;
+import lang::java::m3::AST;
+import lang::java::m3::Core;
+
+import Aliases;
+import AstBased::Location;
 
 // Writes clone statistics + clone classes to a text file.
-void writeCloneClasses(CloneMap groups, loc outFile = |project://rsc_project/src/main/rascal/AstBased/Results/results.txt|) {
+void writeCloneClasses(CloneMap groups, list[Declaration] asts, loc outFile = |project://rsc_project/src/main/rascal/AstBased/Results/results.txt|) {
     str header = "";
     str content = "";
     int numberOfClones = 0;
@@ -51,6 +56,12 @@ void writeCloneClasses(CloneMap groups, loc outFile = |project://rsc_project/src
     header += "\nBiggest clone class has <biggestClass[0]> members\n";
     header += addMembers(biggestClass[1]);
 
+    num totalLines = calculateTotalLOC(asts);
+    num cloneLines = calculateCloneLines(groups);
+    header += "\nTotal Lines of code <totalLines>\n";
+    header += "\nTotal Cloned Lines of code <cloneLines>\n";
+    header += "\nTotal percentage of clone lines <cloneLines/totalLines * 100>\n";
+
     header += "\n--------------------------------------------------\n";
     header += "CLONE CLASSES:\n";
     header += "--------------------------------------------------\n";
@@ -58,6 +69,43 @@ void writeCloneClasses(CloneMap groups, loc outFile = |project://rsc_project/src
 
     writeFile(outFile, header + content);
     println("Results saved to file: <outFile>");
+}
+
+
+/**
+ * Calculate total number code lines which can be considered clones
+ * (which belong to a clone group)
+ */
+int calculateCloneLines(CloneMap groups){
+    list[str] lines = [];
+    for (g <- groups){
+        members = groups[g];
+        // Assumes no overlap
+        for (location <- members){
+            // lines += <location.path, location.begin.line>;
+            lines += readFileLines(location);
+        }
+    }
+    return size(lines);
+}
+
+
+/**
+ * Calculate total number code lines of a project
+ * (unprocessed/uncleaned, thus including empty times, comments)
+ */
+int calculateTotalLOC(list[Declaration] asts){
+    list[loc] fileLocs = genFileList(asts);
+    list[str] lines = [];
+    for (f <- fileLocs){
+        println(f);
+        lines += readFileLines(f);
+    }
+    return size(lines);
+}
+
+list[loc] genFileList(list[Declaration] asts) {
+    return [ast.src | ast <- asts];
 }
 
 

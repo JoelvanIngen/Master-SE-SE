@@ -1,10 +1,13 @@
 module Main
 
 import IO;
+import Location;
 import lang::java::m3::AST;
 import lang::java::m3::Core;
 
 import LineBased::LineBased;
+import AstBased::Detector;
+import AstBased::Output;
 
 
 list[Declaration] getASTs(loc projectLocation) {
@@ -22,8 +25,13 @@ list[Declaration] getASTsFromDirectory(loc projectLocation) {
 }
 
 void main() {
-    asts = getASTs(|project://smallsql0.21_src/|);
-    // Get total # of (cleaned) lines
-    fileLocs = genFileList(asts);
-    cleanedLines = [cleanLines(l) | l <- fileLocs];
+    list[Declaration] asts = getASTs(|project://smallsql0.21_src/|);
+
+    // AST-based detectors
+    clones = detectClonesI(asts);
+    // clones = detectClonesII(asts);
+    // clones = detectClonesIII(asts);
+
+    writeCloneClasses(clones, asts);
+
 }

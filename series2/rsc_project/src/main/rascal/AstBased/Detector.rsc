@@ -17,7 +17,6 @@ import AstBased::CloneMapHelpers;
 import AstBased::CsvWriter;
 import AstBased::Location;
 import AstBased::Normalise;
-import AstBased::Output;
 import AstBased::PermutationSubsumtion;
 
 // Arbitrary number
@@ -26,25 +25,19 @@ int MIN_WINDOW_SIZE = 2;
 
 // Detects Type I clones
 CloneMap detectClonesI(list[node] asts){
-    clones = findClones(asts, generateSlidingWindows);
-    writeCloneClasses(clones);
-    return clones;
+    return findClones(asts, generateSlidingWindows);
 }
 
 
 // Detects Type II clones
 CloneMap detectClonesII(list[node] asts) {
-    clones = findClones(normaliseAst(asts), generateSlidingWindows);
-    writeCloneClasses(clones);
-    return clones;
+    return findClones(normaliseAst(asts), generateSlidingWindows);
 }
 
 
 // Detects Type III clones
 CloneMap detectClonesIII(list[node] asts) {
-    clones = findClones(normaliseAst(asts), generateSlidingWindowsWithPerm);
-    writeCloneClasses(clones);
-    return clones;
+    return findClones(normaliseAst(asts), generateSlidingWindowsWithPerm);
 }
 
 
@@ -80,8 +73,6 @@ CloneMap findClones(list[node] asts, list[node](list[node], int) sequenceGenerat
     // RESULTS
     println("--- Duplicate blocks found after basic: <basicCloneBlocks> ---");
     println("--- Duplicate blocks found after sequence + basic: <totalCloneBlocks> ---");
-    // set[Location] lines = findAffectedLines(groups);
-    // println("Amount of duplicate lines: <size(lines)>");
     printCloneLocs(groups);
 
     return groups;
@@ -133,14 +124,6 @@ CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, i
 
     return groups;
 }
-
-// /**
-//  * Finds all lines that belong to clone class
-//  */
-// set[Location] findAffectedLines(CloneMap groups) {
-//     return { line | group <- groups, clone <- groups[group],
-//                      line <- getStartingLine(clone) };
-// }
 
 
 // Only for quick testing purposes
