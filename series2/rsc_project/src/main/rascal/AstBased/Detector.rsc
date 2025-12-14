@@ -19,25 +19,21 @@ import AstBased::Location;
 import AstBased::Normalise;
 import AstBased::PermutationSubsumtion;
 
-// Arbitrary number
-int MASSTHRESHOLD = 50;
-int MIN_WINDOW_SIZE = 2;
-
 // Detects Type I clones
-CloneMap detectClonesI(list[node] asts){
-    return findClones(asts, generateSlidingWindows);
+CloneMap detectClonesI(list[node] asts, int massThreshold, int minWindow){
+    return findClones(asts, massThreshold, minWindow, generateSlidingWindows);
 }
 
 
 // Detects Type II clones
-CloneMap detectClonesII(list[node] asts) {
-    return findClones(normaliseAst(asts), generateSlidingWindows);
+CloneMap detectClonesII(list[node] asts, int massThreshold, int minWindow) {
+    return findClones(normaliseAst(asts), massThreshold, minWindow, generateSlidingWindows);
 }
 
 
 // Detects Type III clones
-CloneMap detectClonesIII(list[node] asts) {
-    return findClones(normaliseAst(asts), generateSlidingWindowsWithPerm);
+CloneMap detectClonesIII(list[node] asts, int massThreshold, int minWindow) {
+    return findClones(normaliseAst(asts), massThreshold, minWindow, generateSlidingWindowsWithPerm);
 }
 
 
@@ -46,20 +42,20 @@ CloneMap detectClonesIII(list[node] asts) {
  * and sequence-based clone detection then cleaning intermediate results, and
  * returning the final CloneMap containing all discovered clone groups.
  */
-CloneMap findClones(list[node] asts, list[node](list[node], int) sequenceGenerator) {
+CloneMap findClones(list[node] asts, int massThreshold, int minWindow, list[node](list[node], int) sequenceGenerator) {
     CloneMap groups = ();
     map[node, int] sizeMap = constructSizeMap(asts);
 
     // BASIC CLONE SEARCH
-    <groups, maxWindowSize> = findClonesBasic(groups, sizeMap, asts);
+    <groups, maxWindowSize> = findClonesBasic(groups, sizeMap, asts, massThreshold);
     <groups, _> = cleanGroups(groups, 1, sequenceGenerator);
     int basicCloneBlocks = size(groups);
 
     // SEQUENCE CLONE SEARCH
-    for (int windowSize <- [MIN_WINDOW_SIZE..maxWindowSize]) {
+    for (int windowSize <- [minWindow..maxWindowSize]) {
         int earlyExitOldClones = size(groups);
 
-        groups = findClonesSequence(groups, sizeMap, asts, windowSize, sequenceGenerator);
+        groups = findClonesSequence(groups, sizeMap, asts, windowSize, sequenceGenerator, massThreshold);
         <groups, earlyExitNewClones> = cleanGroups(groups, windowSize, sequenceGenerator);
 
         if (earlyExitOldClones == earlyExitNewClones
@@ -84,13 +80,13 @@ CloneMap findClones(list[node] asts, list[node](list[node], int) sequenceGenerat
  * return: <CloneMap, MaxSequenceSize>
  *         returns updated cloneMap (groups) and max list size
  */
-tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node] asts) {
+tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node] asts, int massThreshold) {
     int biggestList = 0;
 
     visit (asts) {
         case node n: {
             // Filters based on subtree mass
-            if ((n has src) && (sizeMap[n] >= MASSTHRESHOLD)){
+            if ((n has src) && (sizeMap[n] >= massThreshold)){
                 groups = addNodeToCloneMap(groups, n);
             }
         }
@@ -110,12 +106,12 @@ tuple[CloneMap, int] findClonesBasic(CloneMap groups, SizeMap sizeMap, list[node
  * return: updated CloneMap
  */
 CloneMap findClonesSequence(CloneMap groups, SizeMap sizeMap, list[node] asts, int sequenceLength,
-                             list[node](list[node], int) sequenceGenerator) {
+                             list[node](list[node], int) sequenceGenerator, int massThreshold) {
 
     visit (asts) {
         case list[Statement] statements: {
             for (node window <- sequenceGenerator(statements, sequenceLength)) {
-                if (slidingWindowMass(sizeMap, window) >= MASSTHRESHOLD) {
+                if (slidingWindowMass(sizeMap, window) >= massThreshold) {
                     groups = addNodeToCloneMap(groups, window);
                 }
             }

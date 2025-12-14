@@ -25,12 +25,15 @@ list[Declaration] getASTsFromDirectory(loc projectLocation) {
 }
 
 void main() {
+    int MASSTHRESHOLD = 50;
+    int MIN_WINDOW_SIZE = 3;
+
     list[Declaration] asts = getASTs(|project://smallsql0.21_src/|);
 
     // AST-based detectors
-    clones = detectClonesI(asts);
-    // clones = detectClonesII(asts);
-    // clones = detectClonesIII(asts);
+    clones = detectClonesI(asts, MASSTHRESHOLD, MIN_WINDOW_SIZE);
+    // clones = detectClonesII(asts, MASSTHRESHOLD, MIN_WINDOW_SIZE);
+    // clones = detectClonesIII(asts, MASSTHRESHOLD, MIN_WINDOW_SIZE);
 
     writeCloneClasses(clones, asts);
 
