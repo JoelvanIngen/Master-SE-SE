@@ -90,13 +90,12 @@ tuple[int cloneClasses,
  * cloneType must be "I", "II", or "III".
  */
 void runMassThresholdSensitivity(loc projectLocation,
-                                 bool isMaven = true,
                                  str cloneType = "I",
                                  int minWindow = 3,
                                  loc outFile =
                                    |project://rsc_project/src/main/rascal/AstBased/Results/sensitivity_mass_threshold.csv|) {
 
-  // fixed thresholds as requested
+  // fixed thresholds
   list[int] thresholds = [5, 10, 25, 50, 80, 100];
 
   // ensure output location exists
@@ -116,7 +115,7 @@ void runMassThresholdSensitivity(loc projectLocation,
   for (int t <- thresholds) {
     CloneMap clones = ();
 
-    int t0 = getMilliTime();       // Rascal timing API :contentReference[oaicite:2]{index=2}
+    int t0 = getMilliTime();
 
     if (cloneType == "I") {
       clones = detectClonesI(asts, t, minWindow);
@@ -160,10 +159,5 @@ void runMassThresholdSensitivity(loc projectLocation,
  * Convenience entrypoint (adjust project path as needed).
  */
 void main() {
-  runMassThresholdSensitivity(
-    |project://smallsql0.21_src/|,
-    isMaven = true,
-    cloneType = "I",
-    minWindow = 3
-  );
+  runMassThresholdSensitivity(|project://smallsql0.21_src/|);
 }

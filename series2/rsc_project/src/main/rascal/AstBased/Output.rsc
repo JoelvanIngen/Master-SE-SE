@@ -12,7 +12,13 @@ import Aliases;
 import AstBased::Location;
 
 // Writes clone statistics + clone classes to a text file.
-void writeCloneClasses(CloneMap groups, list[Declaration] asts, loc outFile = |project://rsc_project/src/main/rascal/AstBased/Results/results.txt|) {
+void writeCloneClasses(CloneMap groups,
+        int massThreshold,
+        int minWindow,
+        int cloneType,
+        list[Declaration] asts,
+        loc outFile = |project://rsc_project/src/main/rascal/AstBased/Results/results.txt|) 
+    {
     str header = "";
     str content = "";
     int numberOfClones = 0;
@@ -48,6 +54,10 @@ void writeCloneClasses(CloneMap groups, list[Declaration] asts, loc outFile = |p
     }
     header += "--------------------------------------------------\n";
     header += "REPORT ON CLONE DETACTION RESULTS\n";
+    header += "--------------------------------------------------\n";
+    header += "Algorithm: AST-based Clone Detection Type <cloneType>\n";
+    header += "Mass Threshold: <massThreshold>\n";
+    header += "Mininum Window Size (Sequences): <minWindow>\n";
     header += "--------------------------------------------------\n";
     header += "Found <numberOfClones> clones total\n";
     header += "\nBiggest clone has <biggestClone[0]> lines\n";
