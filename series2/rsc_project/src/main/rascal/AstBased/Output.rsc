@@ -87,16 +87,21 @@ void writeCloneClasses(CloneMap groups,
  * (which belong to a clone group)
  */
 int calculateCloneLines(CloneMap groups){
-    list[str] lines = [];
+    set[Location] uniqueLines = {};
     for (g <- groups){
-        members = groups[g];
-        // Assumes no overlap
-        for (location <- members){
-            // lines += <location.path, location.begin.line>;
-            lines += readFileLines(location);
+        for (member <- groups[g]) {
+            uniqueLines += locationsFromLoc(member);
         }
     }
-    return size(lines);
+    return size(uniqueLines);
+}
+
+set[Location] locationsFromLoc(loc l) {
+    set[Location] acc = {};
+    for (i <- [l.begin.line .. l.end.line + 1]) {
+        acc += {<l.path, i>};
+    }
+    return acc;
 }
 
 
