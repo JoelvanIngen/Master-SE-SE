@@ -98,8 +98,7 @@ set[Location] allDuplicates(HistoryMap hmap) {
 
         if (size(locs) == 1) continue;  // No duplicates
 
-        list[Location] dups = locs[1..];
-        for (dup <- dups) {
+        for (dup <- locs) {
             dupLocs += getDuplicateRanges(dup);
         }
     }
