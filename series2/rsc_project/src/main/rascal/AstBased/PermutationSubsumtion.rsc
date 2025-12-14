@@ -13,12 +13,11 @@ import AstBased::SequenceHelpers;
  * inside of the members (locations) of the parent class
  */
 CloneMap removeOverlaps(CloneMap groups){
-
-    map[int, list[node]] sizeMap = sizeCloneMap(groups);
+    map[set[str], list[node]] fileSetMap = fileSetCloneMap(groups);
     set[node] toRemove = {};
 
-    for (sizeGroup <- sizeMap){
-        list[node] nodes = sizeMap[sizeGroup];
+    for (sizeGroup <- fileSetMap){
+        list[node] nodes = fileSetMap[sizeGroup];
         toRemove += {
             nodes[j] |
             int i <- [0 .. size(nodes) - 1],
@@ -40,6 +39,7 @@ CloneMap removeOverlaps(CloneMap groups){
 bool shouldSubsumeAndRemove(node parentNode, node childNode, list[loc] parentLocs, list[loc] childLocs, int i, int j) {
     bool childInParent = findIfIncluded(parentLocs, childLocs);
     bool parentInChild = findIfIncluded(childLocs, parentLocs);
+
 
     if (childInParent && !parentInChild) {
         // Case 1: Strict containment, parent strictly covers child, remove child
@@ -68,7 +68,7 @@ bool shouldSubsumeAndRemove(node parentNode, node childNode, list[loc] parentLoc
             return true;
         }
     }
-    
+
     // Case 3, child strictly covers parent, do not remove child
     // Parent will be removed in future iteration
     return false;
@@ -90,19 +90,18 @@ bool findIfIncluded(list[loc] parent, list[loc] child){
   return true;
 }
 
+
 /**
- * Construct a map, which categorizes clone classes with respect to their
- * number of class members
+ * Construct a map which categorizes clone classes with respect to the
+ * set of files they occur in (anchor = file set).
  */
-map[int, list[node]] sizeCloneMap(CloneMap groups){
-    map[int, list[node]] sizeMap = ();
+map[set[str], list[node]] fileSetCloneMap(CloneMap groups){
+    map[set[str], list[node]] fileMap = ();
 
     for (node g <- groups) {
-        int groupSize = size(groups[g]);
-        // To make it fast, exclude size 1;
-        if (groupSize <= 1) continue;
-        sizeMap[groupSize] = (groupSize in sizeMap) ? sizeMap[groupSize] + [g] : [g];
-  }
+        set[str] key = { l.path | l <- groups[g] };
+        fileMap[key] = (key in fileMap) ? fileMap[key] + [g] : [g];
+    }
 
-    return sizeMap;
+    return fileMap;
 }
